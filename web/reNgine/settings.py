@@ -174,7 +174,9 @@ CELERY settings
 """
 CELERY_BROKER_URL = os.environ.get("CELERY_BROKER", "redis://redis:6379/0")
 CELERY_RESULT_BACKEND = os.environ.get("CELERY_BROKER", "redis://redis:6379/0")
+
 DJANGO_CELERY_BEAT_TZ_AWARE = False
+
 CELERY_ENABLE_UTC = False
 CELERY_TIMEZONE = "UTC"
 CELERY_IGNORE_RESULTS = False

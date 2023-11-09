@@ -299,126 +299,133 @@ class loginview(APIView):
 
 class targetSummary(APIView):
     def get(self, request):
-        context = {}
-        id = request.query_params.get("id")
-        target = get_object_or_404(Domain, id=id)
-        context["target"] = target
-        context["scan_count"] = ScanHistory.objects.filter(domain_id=id).count()
-        last_week = timezone.now() - timedelta(days=7)
-        context["this_week_scan_count"] = ScanHistory.objects.filter(
-            domain_id=id, start_scan_date__gte=last_week
-        ).count()
-        subdomains = (
-            Subdomain.objects.filter(target_domain__id=id).values("name").distinct()
-        )
-        endpoints = (
-            EndPoint.objects.filter(target_domain__id=id).values("http_url").distinct()
-        )
-
-        vulnerabilities = Vulnerability.objects.filter(target_domain__id=id)
-        vulnerability_count = vulnerabilities.count()
-        context["subdomain_count"] = subdomains.count()
-        context["alive_count"] = subdomains.filter(http_status__exact=200).count()
-        context["endpoint_count"] = endpoints.count()
-        context["endpoint_alive_count"] = endpoints.filter(
-            http_status__exact=200
-        ).count()
-
-        context["scan_engines"] = EngineType.objects.all()
-
-        unknown_count = vulnerabilities.filter(severity=-1).count()
-        info_count = vulnerabilities.filter(severity=0).count()
-        low_count = vulnerabilities.filter(severity=1).count()
-        medium_count = vulnerabilities.filter(severity=2).count()
-        high_count = vulnerabilities.filter(severity=3).count()
-        critical_count = vulnerabilities.filter(severity=4).count()
-
-        context["unknown_count"] = unknown_count
-        context["info_count"] = info_count
-        context["low_count"] = low_count
-        context["medium_count"] = medium_count
-        context["high_count"] = high_count
-        context["critical_count"] = critical_count
-
-        context["total_vul_ignore_info_count"] = (
-            low_count + medium_count + high_count + critical_count
-        )
-
-        context["most_common_vulnerability"] = (
-            Vulnerability.objects.exclude(severity=0)
-            .filter(target_domain__id=id)
-            .values("name", "severity")
-            .annotate(count=Count("name"))
-            .order_by("-count")[:10]
-        )
-
-        emails = Email.objects.filter(
-            emails__in=ScanHistory.objects.filter(domain__id=id).distinct()
-        )
-
-        context["exposed_count"] = emails.exclude(password__isnull=True).count()
-
-        context["email_count"] = emails.count()
-
-        context["employees_count"] = Employee.objects.filter(
-            employees__in=ScanHistory.objects.filter(id=id)
-        ).count()
-
-        context["recent_scans"] = ScanHistory.objects.filter(domain=id).order_by(
-            "-start_scan_date"
-        )[:4]
-
-        context["vulnerability_count"] = vulnerability_count
-
-        context["vulnerability_list"] = (
-            Vulnerability.objects.filter(target_domain__id=id)
-            .order_by("-severity")
-            .all()[:30]
-        )
-
-        context["http_status_breakdown"] = (
-            Subdomain.objects.filter(target_domain=id)
-            .exclude(http_status=0)
-            .values("http_status")
-            .annotate(Count("http_status"))
-        )
-
-        context["most_common_cve"] = (
-            CveId.objects.filter(
-                cve_ids__in=Vulnerability.objects.filter(target_domain__id=id)
+        try:
+            context = {}
+            id = request.query_params.get("id")
+            target = get_object_or_404(Domain, id=id)
+            context["target"] = target
+            context["scan_count"] = ScanHistory.objects.filter(domain_id=id).count()
+            last_week = timezone.now() - timedelta(days=7)
+            context["this_week_scan_count"] = ScanHistory.objects.filter(
+                domain_id=id, start_scan_date__gte=last_week
+            ).count()
+            subdomains = (
+                Subdomain.objects.filter(target_domain__id=id).values("name").distinct()
             )
-            .annotate(nused=Count("cve_ids"))
-            .order_by("-nused")
-            .values("name", "nused")[:7]
-        )
-        context["most_common_cwe"] = (
-            CweId.objects.filter(
-                cwe_ids__in=Vulnerability.objects.filter(target_domain__id=id)
-            )
-            .annotate(nused=Count("cwe_ids"))
-            .order_by("-nused")
-            .values("name", "nused")[:7]
-        )
-        context["most_common_tags"] = (
-            VulnerabilityTags.objects.filter(
-                vuln_tags__in=Vulnerability.objects.filter(target_domain__id=id)
-            )
-            .annotate(nused=Count("vuln_tags"))
-            .order_by("-nused")
-            .values("name", "nused")[:7]
-        )
 
-        context["asset_countries"] = (
-            CountryISO.objects.filter(
-                ipaddress__in=IpAddress.objects.filter(
-                    ip_addresses__in=Subdomain.objects.filter(target_domain__id=id)
+            endpoints = (
+                EndPoint.objects.filter(target_domain__id=id)
+                .values("http_url")
+                .distinct()
+            )
+
+            vulnerabilities = Vulnerability.objects.filter(target_domain__id=id)
+            vulnerability_count = vulnerabilities.count()
+            context["subdomain_count"] = subdomains.count()
+            context["alive_count"] = subdomains.filter(http_status__exact=200).count()
+            context["endpoint_count"] = endpoints.count()
+            context["endpoint_alive_count"] = endpoints.filter(
+                http_status__exact=200
+            ).count()
+
+            context["scan_engines"] = EngineType.objects.all()
+
+            unknown_count = vulnerabilities.filter(severity=-1).count()
+            info_count = vulnerabilities.filter(severity=0).count()
+            low_count = vulnerabilities.filter(severity=1).count()
+            medium_count = vulnerabilities.filter(severity=2).count()
+            high_count = vulnerabilities.filter(severity=3).count()
+            critical_count = vulnerabilities.filter(severity=4).count()
+
+            context["unknown_count"] = unknown_count
+            context["info_count"] = info_count
+            context["low_count"] = low_count
+            context["medium_count"] = medium_count
+            context["high_count"] = high_count
+            context["critical_count"] = critical_count
+
+            context["total_vul_ignore_info_count"] = (
+                low_count + medium_count + high_count + critical_count
+            )
+
+            context["most_common_vulnerability"] = (
+                Vulnerability.objects.exclude(severity=0)
+                .filter(target_domain__id=id)
+                .values("name", "severity")
+                .annotate(count=Count("name"))
+                .order_by("-count")[:10]
+            )
+
+            emails = Email.objects.filter(
+                emails__in=ScanHistory.objects.filter(domain__id=id).distinct()
+            )
+
+            context["exposed_count"] = emails.exclude(password__isnull=True).count()
+
+            context["email_count"] = emails.count()
+
+            context["employees_count"] = Employee.objects.filter(
+                employees__in=ScanHistory.objects.filter(id=id)
+            ).count()
+
+            context["recent_scans"] = ScanHistory.objects.filter(domain=id).order_by(
+                "-start_scan_date"
+            )[:4]
+
+            context["vulnerability_count"] = vulnerability_count
+
+            context["vulnerability_list"] = (
+                Vulnerability.objects.filter(target_domain__id=id)
+                .order_by("-severity")
+                .all()[:30]
+            )
+
+            context["http_status_breakdown"] = (
+                Subdomain.objects.filter(target_domain=id)
+                .exclude(http_status=0)
+                .values("http_status")
+                .annotate(Count("http_status"))
+            )
+
+            context["most_common_cve"] = (
+                CveId.objects.filter(
+                    cve_ids__in=Vulnerability.objects.filter(target_domain__id=id)
                 )
+                .annotate(nused=Count("cve_ids"))
+                .order_by("-nused")
+                .values("name", "nused")[:7]
             )
-            .annotate(count=Count("iso"))
-            .order_by("-count")
-        )
+            context["most_common_cwe"] = (
+                CweId.objects.filter(
+                    cwe_ids__in=Vulnerability.objects.filter(target_domain__id=id)
+                )
+                .annotate(nused=Count("cwe_ids"))
+                .order_by("-nused")
+                .values("name", "nused")[:7]
+            )
+            context["most_common_tags"] = (
+                VulnerabilityTags.objects.filter(
+                    vuln_tags__in=Vulnerability.objects.filter(target_domain__id=id)
+                )
+                .annotate(nused=Count("vuln_tags"))
+                .order_by("-nused")
+                .values("name", "nused")[:7]
+            )
 
-        return Response(context)
+            context["asset_countries"] = (
+                CountryISO.objects.filter(
+                    ipaddress__in=IpAddress.objects.filter(
+                        ip_addresses__in=Subdomain.objects.filter(target_domain__id=id)
+                    )
+                )
+                .annotate(count=Count("iso"))
+                .order_by("-count")
+            )
+
+            return Response(context)
+        except Exception as e:
+            print(e)
+            return Response({"E": str(e)})
 
 
 class logoutview(APIView):
@@ -992,7 +999,7 @@ class ScheduleStartScan(APIView):
             # for subdomain in request.POST["outOfScopeSubdomainTextarea"].split(",")
             import_subdomain = data.get("importSubdomainTextArea")
             out_of_scope_subdomain = data.get("outOfScopeSubdomainTextarea")
-            engine_type = data["scanMode"]
+            engine_type = data["scanMode"]  # imp
             scheduled_mode = data.get("scheduledMode")
             print(
                 list_of_domains,
@@ -1111,8 +1118,8 @@ class ScheduleStartScan(APIView):
 
                     return Response({"status": True})
                 if project:
-                    project = Project.objects.get(id=project)
-                    for domain in project.get_domains():
+                    domain_ = Domain.objects.filter(project=project)
+                    for domain in domain_:
                         print(domain, "1")
                         task_name = (
                             engine_object.engine_name

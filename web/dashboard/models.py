@@ -1,6 +1,6 @@
 from django.db import models
 from scanEngine.models import Notification
-from targetApp.models import *
+from targetApp.models import Domain
 
 
 class SearchHistory(models.Model):

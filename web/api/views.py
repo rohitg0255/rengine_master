@@ -32,6 +32,7 @@ from targetApp.models import *
 from dashboard.models import *
 
 from .serializers import *
+from startScan.views import create_scan_object
 
 logger = logging.getLogger(__name__)
 
@@ -1014,7 +1015,6 @@ class ScheduleStartScan(APIView):
                 scheduled_mode,
                 "rock",
             )
-            # if request.method == "POST":
             # get imported subdomains
             if import_subdomain:
                 imported_subdomains = [

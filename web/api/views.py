@@ -154,7 +154,6 @@ class AddTarget(APIView):
                                 insert_date=timezone.now(),
                                 ip_address_cidr=domain_name if is_ip else None,
                             )
-                            project.domains.add(domain)
                             added_target_count += 1
                             if created:
                                 logging.info(f"Added new domain {domain.name}")

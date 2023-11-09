@@ -540,6 +540,7 @@ class Dashboard(APIView):
         req = self.request
         data = req.data
         orgId = data["org_id"]
+        print(data)
         try:
             try:
                 domain_ = Domain.objects.filter(project_id=orgId)

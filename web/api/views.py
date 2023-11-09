@@ -68,23 +68,19 @@ class AddTarget(APIView):
         context = {"status": False}
         h1_team_handle = data.get("h1_team_handle")
         description = data.get("description")
-        # domain_name = data.get("domain_name")
-        slug = data.get("slug")
+        org_id = data.get("org_id")
 
         # Validate domain name
         if not validators.domain(domain_name):
             return Response({"status": False, "message": "Invalid domain or IP"})
 
-        project = Project.objects.get(slug=slug)
-
-        # org_instance = Organization.objects.get(id=data["org_id"])
+        project = Project.objects.get(id=org_id)
 
         added_target_count = 0
         multiple_targets = data.get("addTargets")
 
         try:
             # Multiple targets
-            # if multiple_targets:
             bulk_targets = [t.rstrip() for t in multiple_targets.split(",") if t]
             logging.info(f"Adding multiple targets: {bulk_targets}")
             for target in bulk_targets:
@@ -154,7 +150,6 @@ class AddTarget(APIView):
                             insert_date=timezone.now(),
                             ip_address_cidr=domain_name if is_ip else None,
                         )
-                        # domain.save()
                         project.domains.add(domain)
                         added_target_count += 1
                         if created:
@@ -199,54 +194,6 @@ class AddTarget(APIView):
         context["status"] = True
         context["desc"] = msg
         return Response(context)
-
-    # target_name = data.get("domain_name")
-    # h1_team_handle = data.get("h1_team_handle")
-    # description = data.get("description")
-    # ip_address = data.get("ip_address")
-
-    # if not target_name:
-    #     return Response({"status": False, "message": "domain_name missing!"})
-
-    # # validate if target_name is a valid domain_name
-    # if not validators.domain(target_name):
-    #     return Response({"status": False, "message": "Invalid Domain or IP"})
-
-    # org_instance = Organization.objects.get(id=data["org_id"])
-    # print(org_instance, "oiiins")
-    # if Domain.objects.filter(name=target_name).exists():
-    #     domain = Domain.objects.get(name=target_name)
-    #     if ip_address:
-    #         domain.ip_address_cidr = ip_address
-    #     domain.save()
-    #     org_instance.domains.add(domain)
-    #     return Response(
-    #         {
-    #             "status": False,
-    #             "message": "Target already exists!",
-    #             "domain_id": domain.id,
-    #         }
-    #     )
-
-    # domain = Domain()
-    # domain.description = description
-    # domain.name = target_name
-    # domain.insert_date = timezone.now()
-    # domain.h1_team_handle = h1_team_handle
-
-    # if ip_address:
-    #     domain.ip_address_cidr = ip_address
-    # domain.save()
-    # org_instance.domains.add(domain)
-
-    # return Response(
-    #     {
-    #         "status": True,
-    #         "message": "Domain successfully added as target!",
-    #         "domain_name": target_name,
-    #         "domain_id": domain.id,
-    #     }
-    # )
 
 
 class AddOrganization(APIView):
@@ -1730,37 +1677,37 @@ class ToggleSubdomainImportantStatus(APIView):
         return Response(response)
 
 
-class AddTarget(APIView):
-    def post(self, request):
-        req = self.request
-        data = req.data
-        h1_team_handle = data.get("h1_team_handle")
-        description = data.get("description")
-        domain_name = data.get("domain_name")
-        slug = data.get("slug")
+# class AddTarget(APIView):
+#     def post(self, request):
+#         req = self.request
+#         data = req.data
+#         h1_team_handle = data.get("h1_team_handle")
+#         description = data.get("description")
+#         domain_name = data.get("domain_name")
+#         slug = data.get("slug")
 
-        # Validate domain name
-        if not validators.domain(domain_name):
-            return Response({"status": False, "message": "Invalid domain or IP"})
+#         # Validate domain name
+#         if not validators.domain(domain_name):
+#             return Response({"status": False, "message": "Invalid domain or IP"})
 
-        project = Project.objects.get(slug=slug)
+#         project = Project.objects.get(slug=slug)
 
-        # Create domain object in DB
-        domain, _ = Domain.objects.get_or_create(name=domain_name)
-        domain.project = project
-        domain.h1_team_handle = h1_team_handle
-        domain.description = description
-        if not domain.insert_date:
-            domain.insert_date = timezone.now()
-        domain.save()
-        return Response(
-            {
-                "status": True,
-                "message": "Domain successfully added as target !",
-                "domain_name": domain_name,
-                "domain_id": domain.id,
-            }
-        )
+#         # Create domain object in DB
+#         domain, _ = Domain.objects.get_or_create(name=domain_name)
+#         domain.project = project
+#         domain.h1_team_handle = h1_team_handle
+#         domain.description = description
+#         if not domain.insert_date:
+#             domain.insert_date = timezone.now()
+#         domain.save()
+#         return Response(
+#             {
+#                 "status": True,
+#                 "message": "Domain successfully added as target !",
+#                 "domain_name": domain_name,
+#                 "domain_id": domain.id,
+#             }
+#         )
 
 
 class FetchSubscanResults(APIView):

@@ -148,7 +148,7 @@ urlpatterns = [
     path("extend/limit/", ExtendLimit.as_view(), name="extendLimit"),
     path("add/target/multiple/", AddTarget.as_view(), name="addTarget"),
     path("dashboard", Dashboard.as_view(), name="dashboard"),  #######
-    path("notification/", NotificationAPi.as_view(), name="notificationApi"),
+    path("notification", NotificationAPi.as_view(), name="notificationApi"),
     path("org_scan_status/", OrgScanStatus.as_view(), name="org_scan_status"),
     path(
         "schedule_start_scan/", ScheduleStartScan.as_view(), name="schedule_start_scan"

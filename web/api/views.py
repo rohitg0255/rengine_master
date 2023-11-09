@@ -904,10 +904,9 @@ class OrgScanStatus(APIView):
         req = self.request
         data = req.data
         project = data["project"]
-        # print(orgId)
         response = {"status": False}
         domain = list(
-            Project.objects.get(id=project).get_domains().values_list("id", flat=True)
+            Domain.objects.filter(project=project).values_list("id", flat=True)
         )
         #     response = {"status": True}
         #     print(list(domain), "gotIt")

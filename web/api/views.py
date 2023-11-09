@@ -848,7 +848,7 @@ class Dashboard(APIView):
                 }
 
                 context["total_ips"] = org_ip.count()
-                most_used_port = query_to_list(
+                context["most_used_port"] = query_to_list(
                     domain_.values("subdomain__ip_addresses__ports__number")
                     .annotate(count=Count("subdomain__ip_addresses__ports__number"))
                     .order_by("-count")

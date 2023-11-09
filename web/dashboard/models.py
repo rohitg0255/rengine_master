@@ -1,4 +1,5 @@
 from django.db import models
+from targetApp.models import *
 
 
 class SearchHistory(models.Model):

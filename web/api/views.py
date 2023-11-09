@@ -16,7 +16,9 @@ from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.status import HTTP_400_BAD_REQUEST
+from reNgine.tasks import create_scan_activity, initiate_scan, run_command
 from django_celery_beat.models import ClockedSchedule, IntervalSchedule, PeriodicTask
+from django.contrib import messages
 
 from recon_note.models import *
 from reNgine.celery import app
@@ -1004,6 +1006,13 @@ class ScheduleStartScan(APIView):
             out_of_scope_subdomain = data.get("outOfScopeSubdomainTextarea")
             engine_type = data["scanMode"]  # imp
             scheduled_mode = data.get("scheduledMode")
+            
+            paths = data.get("filterPath").split()
+            filterPath = [s.rstrip() for s in paths if s]
+            if len(filterPath) > 0:
+                filterPath = filterPath[0]
+            else:
+                filterPath = ''
             print(
                 list_of_domains,
                 host_id,
@@ -1204,15 +1213,24 @@ class ScheduleStartScan(APIView):
                     print("ya")
 
                     for domain_id in list_of_domains:
-                        # start the celery task
+                        # Create ScanHistory object
+                        domain = get_object_or_404(Domain, id=domain_id)
                         scan_history_id = create_scan_object(domain_id, engine_type)
-                        celery_task = initiate_scan.apply_async(
-                            args=(domain_id, scan_history_id, 0, engine_type)
-                        )
-                        ScanHistory.objects.filter(id=scan_history_id).update(
-                            celery_id=celery_task.id
-                        )
-                    print("true")
+                        scan = ScanHistory.objects.get(pk=scan_history_id)
+                         # Start the celery task
+                        kwargs = {
+                            'scan_history_id': scan.id,
+                            'domain_id': domain.id,
+                            'engine_id': engine_type,
+                            'scan_type': LIVE_SCAN,
+                            'results_dir': '/usr/src/scan_results',
+                            'imported_subdomains': imported_subdomains,
+                            'out_of_scope_subdomains': out_of_scope_subdomains,
+                            'url_filter': filterPath
+                        }
+                        
+                        initiate_scan.apply_async(kwargs=kwargs)
+                        scan.save()
                     return Response({"status": True})
         except Exception as e:
             return Response({"status": False, "desc": str(e)})

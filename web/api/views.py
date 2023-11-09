@@ -429,83 +429,93 @@ class logoutview(APIView):
 
 class NotificationAPi(APIView):
     def get(self, request):
-        project = request.query_params.get("project")
-        proj_obj = Project.objects.select_related("notification").get(id=project)
-        notification = Notification.objects.get(
-            id=list(
-                Project.objects.filter(id=project).values_list(
-                    "notification", flat=True
-                )
-            )[0]
-        )
-        print(
-            notification,
-            proj_obj.notification.send_to_slack,
-            proj_obj.notification.send_to_telegram,
-            "dgg",
-        )
-        notn_obj = model_to_dict(proj_obj.notification)
-        return Response({"obj": notn_obj})
+        try:
+            project = request.query_params.get("project")
+            proj_obj = Project.objects.select_related("notification").get(id=project)
+            notification = Notification.objects.get(
+                id=list(
+                    Project.objects.filter(id=project).values_list(
+                        "notification", flat=True
+                    )
+                )[0]
+            )
+            print(
+                notification,
+                proj_obj.notification.send_to_slack,
+                proj_obj.notification.send_to_telegram,
+                "dgg",
+            )
+            notn_obj = model_to_dict(proj_obj.notification)
+            return Response({"obj": notn_obj})
+        except Exception as e:
+            return Response({"error": e})
 
     def post(self, request):
-        req = self.request
-        data = req.data
-        context = {}
-
-        project = req.query_params.get("project")
-
-        send_to_slack = data.get("send_to_slack", None)
-        send_to_discord = data.get("send_to_discord", None)
-        send_to_telegram = data.get("send_to_telegram", None)
-        slack_hook_url = data.get("slack_hook_url", None)
-        discord_hook_url = data.get("discord_hook_url", None)
-        telegram_bot_token = data.get("telegram_bot_token", None)
-        telegram_bot_chat_id = data.get("telegram_bot_chat_id", None)
-        send_scan_status_notif = data.get("send_scan_status_notif", None)
-        send_interesting_notif = data.get("send_interesting_notif", None)
-        send_vuln_notif = data.get("send_vuln_notif", None)
-        send_subdomain_changes_notif = data.get("send_subdomain_changes_notif", None)
-        send_scan_output_file = data.get("send_scan_output_file", None)
-
-        update = {}
-
-        if send_to_slack != None:
-            update["send_to_slack"] = send_to_slack
-        if send_to_discord != None:
-            update["send_to_discord"] = send_to_discord
-        if send_to_telegram != None:
-            update["send_to_telegram"] = send_to_telegram
-        if slack_hook_url != None:
-            update["slack_hook_url"] = slack_hook_url
-        if discord_hook_url != None:
-            update["discord_hook_url"] = discord_hook_url
-        if telegram_bot_token != None:
-            update["telegram_bot_token"] = telegram_bot_token
-        if telegram_bot_chat_id != None:
-            update["telegram_bot_chat_id"] = telegram_bot_chat_id
-        if send_scan_status_notif != None:
-            update["send_scan_status_notif"] = send_scan_status_notif
-        if send_interesting_notif != None:
-            update["send_interesting_notif"] = send_interesting_notif
-        if send_vuln_notif != None:
-            update["send_vuln_notif"] = send_vuln_notif
-        if send_subdomain_changes_notif != None:
-            update["send_subdomain_changes_notif"] = send_subdomain_changes_notif
-        if send_scan_output_file != None:
-            update["send_scan_output_file"] = send_scan_output_file
-        print(update, "gee")
         try:
-            notification = list(
-                Project.objects.filter(id=project)
-                .select_related("notification")
-                .all()
-                .values_list("notification__id", flat=True)
-            )
-            print(notification, "dgg")
-            notn_obj = Notification.objects.filter(id=notification[0]).update(**update)
-            print(notn_obj, "newio")
+            req = self.request
+            data = req.data
+            context = {}
 
-            return Response({"status": True})
+            project = req.query_params.get("project")
+
+            send_to_slack = data.get("send_to_slack", None)
+            send_to_discord = data.get("send_to_discord", None)
+            send_to_telegram = data.get("send_to_telegram", None)
+            slack_hook_url = data.get("slack_hook_url", None)
+            discord_hook_url = data.get("discord_hook_url", None)
+            telegram_bot_token = data.get("telegram_bot_token", None)
+            telegram_bot_chat_id = data.get("telegram_bot_chat_id", None)
+            send_scan_status_notif = data.get("send_scan_status_notif", None)
+            send_interesting_notif = data.get("send_interesting_notif", None)
+            send_vuln_notif = data.get("send_vuln_notif", None)
+            send_subdomain_changes_notif = data.get(
+                "send_subdomain_changes_notif", None
+            )
+            send_scan_output_file = data.get("send_scan_output_file", None)
+
+            update = {}
+
+            if send_to_slack != None:
+                update["send_to_slack"] = send_to_slack
+            if send_to_discord != None:
+                update["send_to_discord"] = send_to_discord
+            if send_to_telegram != None:
+                update["send_to_telegram"] = send_to_telegram
+            if slack_hook_url != None:
+                update["slack_hook_url"] = slack_hook_url
+            if discord_hook_url != None:
+                update["discord_hook_url"] = discord_hook_url
+            if telegram_bot_token != None:
+                update["telegram_bot_token"] = telegram_bot_token
+            if telegram_bot_chat_id != None:
+                update["telegram_bot_chat_id"] = telegram_bot_chat_id
+            if send_scan_status_notif != None:
+                update["send_scan_status_notif"] = send_scan_status_notif
+            if send_interesting_notif != None:
+                update["send_interesting_notif"] = send_interesting_notif
+            if send_vuln_notif != None:
+                update["send_vuln_notif"] = send_vuln_notif
+            if send_subdomain_changes_notif != None:
+                update["send_subdomain_changes_notif"] = send_subdomain_changes_notif
+            if send_scan_output_file != None:
+                update["send_scan_output_file"] = send_scan_output_file
+            print(update, "gee")
+            try:
+                notification = list(
+                    Project.objects.filter(id=project)
+                    .select_related("notification")
+                    .all()
+                    .values_list("notification__id", flat=True)
+                )
+                print(notification, "dgg")
+                notn_obj = Notification.objects.filter(id=notification[0]).update(
+                    **update
+                )
+                print(notn_obj, "newio")
+
+                return Response({"status": True})
+            except Exception as e:
+                return Response({"status": str(e)})
         except Exception as e:
             return Response({"status": str(e)})
 

@@ -28,6 +28,7 @@ from scanEngine.models import *
 from startScan.models import *
 from startScan.models import EndPoint
 from targetApp.models import *
+from dashboard.models import *
 
 from .serializers import *
 
@@ -540,8 +541,7 @@ class Dashboard(APIView):
         data = req.data
         orgId = data["org_id"]
         try:
-            #     try:
-            domain_ = Organization.objects.get(id=orgId).get_domains()
+            domain_ = Project.objects.get(id=orgId).get_domains()
 
             p = (
                 domain_.annotate(month=TruncMonth("subdomain__discovered_date"))
@@ -583,8 +583,6 @@ class Dashboard(APIView):
             org_ip_over_months = (
                 org_scan_history.prefetch_related("subdomain").all().order_by("month")
             )
-
-            # print(org_ip_over_months.first().subdomain, "org_ip_over_months")
 
             lastest_scan = org_scan_history.order_by("-start_scan_date").first()
             print(lastest_scan, "scllaa")
@@ -815,13 +813,6 @@ class Dashboard(APIView):
                 .annotate(count=Count("subdomain__ip_addresses__ports__number"))
                 .order_by("-count")
             )[:7]
-            context["most_used_port"] = most_used_port
-            # query_to_list(
-            #     Port.objects.filter(number__in=ports)
-            #     .annotate(count=Count("ports"))
-            #     .order_by("-count")
-            #     .values()[:7]
-            # )
             context["most_used_ip"] = query_to_list(
                 org_ip.annotate(count=Count("ip_addresses"))
                 .order_by("-count")
@@ -853,12 +844,6 @@ class Dashboard(APIView):
                 .order_by("-nused")
                 .values("name", "nused")[:7]
             )
-            # a = list(
-            # Organization.objects.get(id=orgId)
-            # .get_domains()
-            # .exclude(subdomain=None)
-            # .values_list("subdomain__id", flat=True)
-            # )
             b = list(
                 Subdomain.objects.filter(id__in=org_subdomain_id)
                 .prefetch_related("ip_addresses")
@@ -872,7 +857,6 @@ class Dashboard(APIView):
                 .annotate(count=Count("geo_iso__name"))
             )
             context["asset_countries"] = [c[i] for i in range(len(c))]
-            # context["status"] = True
             print(context, "ctx")
             for i in context:
                 print(i, "           ", context[i])
@@ -1272,8 +1256,13 @@ class CreateProjectApi(APIView):
         insert_date = timezone.now()
 
         try:
+            notification = Notification()
+            notification.save()
             project = Project.objects.create(
-                name=project_name, slug=slug, insert_date=insert_date
+                name=project_name,
+                slug=slug,
+                insert_date=insert_date,
+                notification=notification,
             )
             response = {"status": True, "project_name": project_name}
             return Response(response)

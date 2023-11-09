@@ -62,139 +62,146 @@ def get_ips_from_cidr_range(target):
 
 class AddTarget(APIView):
     def post(self, request):
-        req = self.request
-        data = req.data
-        print(data, "trdata")
-        context = {"status": False}
-        h1_team_handle = data.get("h1_team_handle")
-        description = data.get("description")
-        org_id = data.get("org_id")
-
-        # Validate domain name
-        if not validators.domain(domain_name):
-            return Response({"status": False, "message": "Invalid domain or IP"})
-
-        project = Project.objects.get(id=org_id)
-
-        added_target_count = 0
-        multiple_targets = data.get("addTargets")
-
         try:
-            # Multiple targets
-            bulk_targets = [t.rstrip() for t in multiple_targets.split(",") if t]
-            logging.info(f"Adding multiple targets: {bulk_targets}")
-            for target in bulk_targets:
-                target = target.rstrip("\n")
-                http_urls = []
-                domains = []
-                ports = []
-                ips = []
+            req = self.request
+            data = req.data
+            print(data, "trdata")
+            context = {"status": False}
+            h1_team_handle = data.get("h1_team_handle")
+            description = data.get("description")
+            org_id = data.get("org_id")
 
-                # Validate input and find what type of address it is.
-                # Valid inputs are URLs, Domains, or IP addresses.
-                # TODO: support IP CIDR ranges (auto expand range and
-                # save new found ips to DB)
-                is_domain = bool(validators.domain(target))
-                is_ip = bool(validators.ipv4(target)) or bool(validators.ipv6(target))
-                is_range = bool(validators.ipv4_cidr(target)) or bool(
-                    validators.ipv6_cidr(target)
-                )
-                is_url = bool(validators.url(target))
+            # Validate domain name
+            if not validators.domain(domain_name):
+                return Response({"status": False, "message": "Invalid domain or IP"})
 
-                # Set ip_domain / http_url based on type of input
-                logging.info(
-                    f"{target} | Domain? {is_domain} | IP? {is_ip} | CIDR range? {is_range} | URL? {is_url}"
-                )
+            project = Project.objects.get(id=org_id)
 
-                if is_domain:
-                    domains.append(target)
+            added_target_count = 0
+            multiple_targets = data.get("addTargets")
 
-                elif is_url:
-                    url = urlparse(target)
-                    http_url = url.geturl()
-                    http_urls.append(http_url)
-                    split = url.netloc.split(":")
-                    if len(split) == 1:
-                        domain = split[0]
-                        domains.append(domain)
-                    if len(split) == 2:
-                        domain, port_number = tuple(split)
-                        domains.append(domain)
-                        ports.append(port_number)
+            try:
+                # Multiple targets
+                bulk_targets = [t.rstrip() for t in multiple_targets.split(",") if t]
+                logging.info(f"Adding multiple targets: {bulk_targets}")
+                for target in bulk_targets:
+                    target = target.rstrip("\n")
+                    http_urls = []
+                    domains = []
+                    ports = []
+                    ips = []
 
-                elif is_ip:
-                    ips.append(target)
-                    domains.append(target)
-
-                elif is_range:
-                    ips = get_ips_from_cidr_range(target)
-                    for ip_address in ips:
-                        ips.append(ip_address)
-                        domains.append(ip_address)
-                else:
-                    msg = f"{target} is not a valid domain, IP, or URL. Skipped."
-                    logging.info(msg)
-                    continue
-
-                logging.info(
-                    f"IPs: {ips} | Domains: {domains} | URLs: {http_urls} | Ports: {ports}"
-                )
-
-                for domain_name in domains:
-                    if not Domain.objects.filter(name=domain_name).exists():
-                        domain, created = Domain.objects.get_or_create(
-                            name=domain_name,
-                            description=description,
-                            h1_team_handle=h1_team_handle,
-                            project=project,
-                            insert_date=timezone.now(),
-                            ip_address_cidr=domain_name if is_ip else None,
-                        )
-                        project.domains.add(domain)
-                        added_target_count += 1
-                        if created:
-                            logging.info(f"Added new domain {domain.name}")
-
-                for http_url in http_urls:
-                    http_url = sanitize_url(http_url)
-                    endpoint, created = EndPoint.objects.get_or_create(
-                        target_domain=domain, http_url=http_url
+                    # Validate input and find what type of address it is.
+                    # Valid inputs are URLs, Domains, or IP addresses.
+                    # TODO: support IP CIDR ranges (auto expand range and
+                    # save new found ips to DB)
+                    is_domain = bool(validators.domain(target))
+                    is_ip = bool(validators.ipv4(target)) or bool(
+                        validators.ipv6(target)
                     )
-                    if created:
-                        logging.info(f"Added new endpoint {endpoint.http_url}")
+                    is_range = bool(validators.ipv4_cidr(target)) or bool(
+                        validators.ipv6_cidr(target)
+                    )
+                    is_url = bool(validators.url(target))
 
-                for ip_address in ips:
-                    ip_data = get_ip_info(ip_address)
-                    ip, created = IpAddress.objects.get_or_create(address=ip_address)
-                    ip.reverse_pointer = ip_data.reverse_pointer
-                    ip.is_private = ip_data.is_private
-                    ip.version = ip_data.version
-                    ip.save()
-                    if created:
-                        logging.info(f"Added new IP {ip}")
+                    # Set ip_domain / http_url based on type of input
+                    logging.info(
+                        f"{target} | Domain? {is_domain} | IP? {is_ip} | CIDR range? {is_range} | URL? {is_url}"
+                    )
 
-                for port in ports:
-                    port, created = Port.objects.get_or_create(number=port_number)
-                    if created:
-                        logging.info(f"Added new port {port.number}.")
+                    if is_domain:
+                        domains.append(target)
+
+                    elif is_url:
+                        url = urlparse(target)
+                        http_url = url.geturl()
+                        http_urls.append(http_url)
+                        split = url.netloc.split(":")
+                        if len(split) == 1:
+                            domain = split[0]
+                            domains.append(domain)
+                        if len(split) == 2:
+                            domain, port_number = tuple(split)
+                            domains.append(domain)
+                            ports.append(port_number)
+
+                    elif is_ip:
+                        ips.append(target)
+                        domains.append(target)
+
+                    elif is_range:
+                        ips = get_ips_from_cidr_range(target)
+                        for ip_address in ips:
+                            ips.append(ip_address)
+                            domains.append(ip_address)
+                    else:
+                        msg = f"{target} is not a valid domain, IP, or URL. Skipped."
+                        logging.info(msg)
+                        continue
+
+                    logging.info(
+                        f"IPs: {ips} | Domains: {domains} | URLs: {http_urls} | Ports: {ports}"
+                    )
+
+                    for domain_name in domains:
+                        if not Domain.objects.filter(name=domain_name).exists():
+                            domain, created = Domain.objects.get_or_create(
+                                name=domain_name,
+                                description=description,
+                                h1_team_handle=h1_team_handle,
+                                project=project,
+                                insert_date=timezone.now(),
+                                ip_address_cidr=domain_name if is_ip else None,
+                            )
+                            project.domains.add(domain)
+                            added_target_count += 1
+                            if created:
+                                logging.info(f"Added new domain {domain.name}")
+
+                    for http_url in http_urls:
+                        http_url = sanitize_url(http_url)
+                        endpoint, created = EndPoint.objects.get_or_create(
+                            target_domain=domain, http_url=http_url
+                        )
+                        if created:
+                            logging.info(f"Added new endpoint {endpoint.http_url}")
+
+                    for ip_address in ips:
+                        ip_data = get_ip_info(ip_address)
+                        ip, created = IpAddress.objects.get_or_create(
+                            address=ip_address
+                        )
+                        ip.reverse_pointer = ip_data.reverse_pointer
+                        ip.is_private = ip_data.is_private
+                        ip.version = ip_data.version
+                        ip.save()
+                        if created:
+                            logging.info(f"Added new IP {ip}")
+
+                    for port in ports:
+                        port, created = Port.objects.get_or_create(number=port_number)
+                        if created:
+                            logging.info(f"Added new port {port.number}.")
+            except Exception as e:
+                logging.info(e)
+                print(e)
+                context["desc"] = f"Exception while adding domain: {e}"
+                return Response(context)
+
+            # No targets added, redirect to add target page
+            if added_target_count == 0:
+                context[
+                    "desc"
+                ] = f"Oops! Could not import any targets, either targets already exists or is not a valid target."
+                return Response(context)
+
+            # Targets added successfully, redirect to targets list
+            msg = f"{added_target_count} targets added successfully"
+            context["status"] = True
+            context["desc"] = msg
+            return Response(context)
         except Exception as e:
-            logging.info(e)
             print(e)
-            context["desc"] = f"Exception while adding domain: {e}"
-            return Response(context)
-
-        # No targets added, redirect to add target page
-        if added_target_count == 0:
-            context[
-                "desc"
-            ] = f"Oops! Could not import any targets, either targets already exists or is not a valid target."
-            return Response(context)
-
-        # Targets added successfully, redirect to targets list
-        msg = f"{added_target_count} targets added successfully"
-        context["status"] = True
-        context["desc"] = msg
-        return Response(context)
 
 
 class AddOrganization(APIView):

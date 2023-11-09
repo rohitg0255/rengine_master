@@ -126,6 +126,7 @@ class AddTarget(APIView):
                             ports.append(port_number)
 
                     elif is_range == True:
+                        print(target, "rnge")
                         ips = get_ips_from_cidr_range(target)
                         for ip_address in ips:
                             ips.append(ip_address)

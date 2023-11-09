@@ -66,13 +66,21 @@ class AddTarget(APIView):
         data = req.data
         print(data, "trdata")
         context = {"status": False}
+        h1_team_handle = data.get("h1_team_handle")
+        description = data.get("description")
+        # domain_name = data.get("domain_name")
+        slug = data.get("slug")
 
-        org_instance = Organization.objects.get(id=data["org_id"])
+        # Validate domain name
+        if not validators.domain(domain_name):
+            return Response({"status": False, "message": "Invalid domain or IP"})
+
+        project = Project.objects.get(slug=slug)
+
+        # org_instance = Organization.objects.get(id=data["org_id"])
 
         added_target_count = 0
         multiple_targets = data.get("addTargets")
-        description = data.get("targetDescription", "")
-        h1_team_handle = data.get("targetH1TeamHandle", "")
 
         try:
             # Multiple targets
@@ -142,12 +150,12 @@ class AddTarget(APIView):
                             name=domain_name,
                             description=description,
                             h1_team_handle=h1_team_handle,
-                            # project=project,
+                            project=project,
                             insert_date=timezone.now(),
                             ip_address_cidr=domain_name if is_ip else None,
                         )
                         # domain.save()
-                        org_instance.domains.add(domain)
+                        project.domains.add(domain)
                         added_target_count += 1
                         if created:
                             logging.info(f"Added new domain {domain.name}")
@@ -249,8 +257,9 @@ class AddOrganization(APIView):
         response = {}
         response["status"] = False
         try:
-            org = Organization.objects.get(name=data["name"])
-            response["desc"] = "Organization name not available"
+            project = Project.objects.get(name=data["name"])
+            # org = Organization.objects.get(name=data["name"])
+            response["desc"] = "Project name not available"
             return Response(response)
         except Organization.DoesNotExist:
             notification = Notification()
@@ -265,6 +274,34 @@ class AddOrganization(APIView):
             print(organization.pk, "org")
             response["status"] = True
             response["org_id"] = organization.id
+            return Response(response)
+
+
+class AddProject(APIView):
+    def post(self, request):
+        req = self.request
+        data = req.data
+        print(data["name"], data["desc"], "aat")
+        response = {}
+        response["status"] = False
+        try:
+            project = Project.objects.get(name=data["name"])
+            # org = Organization.objects.get(name=data["name"])
+            response["desc"] = "Project name not available"
+            return Response(response)
+        except Project.DoesNotExist:
+            notification = Notification()
+            notification.save()
+            project = Project(
+                name=data["name"],
+                slug=data["name"],
+                insert_date=timezone.now(),
+                notification=notification,
+            )
+            project.save()
+            print(project.pk, "org")
+            response["status"] = True
+            response["project"] = project.id
             return Response(response)
 
 
@@ -439,19 +476,22 @@ class logoutview(APIView):
 
 class NotificationAPi(APIView):
     def get(self, request):
-        org_id = request.query_params.get("org_id")
-        kr = Organization.objects.select_related("notification").get(id=org_id)
-        og = Notification.objects.get(
+        project = request.query_params.get("project")
+        proj_obj = Project.objects.select_related("notification").get(id=project)
+        notification = Notification.objects.get(
             id=list(
-                Organization.objects.filter(id=org_id).values_list(
+                Project.objects.filter(id=project).values_list(
                     "notification", flat=True
                 )
             )[0]
         )
         print(
-            og, kr.notification.send_to_slack, kr.notification.send_to_telegram, "dgg"
+            notification,
+            proj_obj.notification.send_to_slack,
+            proj_obj.notification.send_to_telegram,
+            "dgg",
         )
-        notn_obj = model_to_dict(kr.notification)
+        notn_obj = model_to_dict(proj_obj.notification)
         return Response({"obj": notn_obj})
 
     def post(self, request):
@@ -459,7 +499,7 @@ class NotificationAPi(APIView):
         data = req.data
         context = {}
 
-        org_id = req.query_params.get("org_id")
+        project = req.query_params.get("project")
 
         send_to_slack = data.get("send_to_slack", None)
         send_to_discord = data.get("send_to_discord", None)
@@ -502,14 +542,14 @@ class NotificationAPi(APIView):
             update["send_scan_output_file"] = send_scan_output_file
         print(update, "gee")
         try:
-            og = list(
-                Organization.objects.filter(id=org_id)
+            notification = list(
+                Project.objects.filter(id=project)
                 .select_related("notification")
                 .all()
                 .values_list("notification__id", flat=True)
             )
-            print(og, "dgg")
-            notn_obj = Notification.objects.filter(id=og[0]).update(**update)
+            print(notification, "dgg")
+            notn_obj = Notification.objects.filter(id=notification[0]).update(**update)
             print(notn_obj, "newio")
 
             return Response({"status": True})
@@ -530,14 +570,14 @@ class ExtendLimit(APIView):
         req = self.request
         data = req.data
 
-        orgId = data["orgId"]
+        project = data["project"]
         extend = data["extend"]
         try:
-            org = Organization.objects.get(id=orgId)
-            newLimit = org.limit + extend
-            org.limit = newLimit
-            org.save()
-            return Response({"status": True, "orgId": org.id})
+            project = Project.objects.get(id=project)
+            newLimit = project.limit + extend
+            project.limit = newLimit
+            project.save()
+            return Response({"status": True, "project": project.id})
         except Exception as e:
             return Response({"status": False, "error": error})
 
@@ -899,31 +939,29 @@ class OrgScanStatus(APIView):
         # main tasks
         req = self.request
         data = req.data
-        orgId = data["org_id"]
-        print(orgId)
+        project = data["project"]
+        # print(orgId)
         response = {"status": False}
-        org_domain = list(
-            Organization.objects.get(id=orgId)
-            .get_domains()
-            .values_list("id", flat=True)
+        domain = list(
+            Project.objects.get(id=project).get_domains().values_list("id", flat=True)
         )
         #     response = {"status": True}
-        #     print(list(org_domain), "gotIt")
+        #     print(list(domain), "gotIt")
         try:
             recently_completed_scans_all = (
                 ScanHistory.objects.all()
                 .order_by("-start_scan_date")
                 .filter(Q(scan_status=0) | Q(scan_status=2) | Q(scan_status=3))
-                .filter(domain_id__in=org_domain)
+                .filter(domain_id__in=domain)
             )
             recently_completed_scans = recently_completed_scans_all[:10]
             currently_scanning = (
                 ScanHistory.objects.order_by("-start_scan_date")
                 .filter(scan_status=1)
-                .filter(domain_id__in=org_domain)
+                .filter(domain_id__in=domain)
             )
             pending_scans = ScanHistory.objects.filter(scan_status=-1).filter(
-                domain_id__in=org_domain
+                domain_id__in=domain
             )
 
             # subtasks
@@ -986,7 +1024,7 @@ class ScheduleStartScan(APIView):
             list_of_domains = data.get("listOfDomainId")
             host_id = data.get("domainId")
             is_schedule = data.get("schedule")
-            org_id = data.get("orgId")
+            project = data.get("project")
             # for subdomain in data["importSubdomainTextArea"].split("\n")
             # for subdomain in request.POST["outOfScopeSubdomainTextarea"].split(",")
             import_subdomain = data.get("importSubdomainTextArea")
@@ -997,7 +1035,7 @@ class ScheduleStartScan(APIView):
                 list_of_domains,
                 host_id,
                 is_schedule,
-                org_id,
+                project,
                 import_subdomain,
                 out_of_scope_subdomain,
                 engine_type,
@@ -1109,9 +1147,9 @@ class ScheduleStartScan(APIView):
                         )
 
                     return Response({"status": True})
-                if org_id:
-                    organization = Organization.objects.get(id=org_id)
-                    for domain in organization.get_domains():
+                if project:
+                    project = Project.objects.get(id=project)
+                    for domain in project.get_domains():
                         print(domain, "1")
                         task_name = (
                             engine_object.engine_name

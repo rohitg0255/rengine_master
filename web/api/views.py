@@ -299,12 +299,12 @@ class loginview(APIView):
 
 class targetSummary(APIView):
     def get(self, request):
+        context = {}
+        id = request.query_params.get("id")
+        target = get_object_or_404(Domain, id=id)
+        context["target"] = target
+        context["scan_count"] = ScanHistory.objects.filter(domain_id=id).count()
         try:
-            context = {}
-            id = request.query_params.get("id")
-            target = get_object_or_404(Domain, id=id)
-            context["target"] = target
-            context["scan_count"] = ScanHistory.objects.filter(domain_id=id).count()
             last_week = timezone.now() - timedelta(days=7)
             context["this_week_scan_count"] = ScanHistory.objects.filter(
                 domain_id=id, start_scan_date__gte=last_week

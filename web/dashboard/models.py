@@ -1,5 +1,5 @@
 from django.db import models
-from targetApp.models import *
+from scanEngine.models import Notification
 
 
 class SearchHistory(models.Model):

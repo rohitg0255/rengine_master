@@ -105,10 +105,10 @@ class AddTarget(APIView):
                         f"{target} | Domain? {is_domain} | IP? {is_ip} | CIDR range? {is_range} | URL? {is_url}"
                     )
 
-                    if is_domain:
+                    if is_domain == True:
                         domains.append(target)
 
-                    elif is_url:
+                    elif is_url == True:
                         url = urlparse(target)
                         http_url = url.geturl()
                         http_urls.append(http_url)
@@ -121,11 +121,11 @@ class AddTarget(APIView):
                             domains.append(domain)
                             ports.append(port_number)
 
-                    elif is_ip:
+                    elif is_ip == True:
                         ips.append(target)
                         domains.append(target)
 
-                    elif is_range:
+                    elif is_range == True:
                         ips = get_ips_from_cidr_range(target)
                         for ip_address in ips:
                             ips.append(ip_address)

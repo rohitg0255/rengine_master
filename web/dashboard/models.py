@@ -16,7 +16,7 @@ class Project(models.Model):
     insert_date = models.DateTimeField()
     limit = models.IntegerField(default=0)
     notification = models.ForeignKey(
-        Notification, on_delete=models.CASCADE, related_name="notification"
+        Notification, null=True, on_delete=models.CASCADE, related_name="notification"
     )
 
     def __str__(self):

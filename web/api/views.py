@@ -517,6 +517,7 @@ def query_to_list(qs):
 import pickle
 import json
 from datetime import timedelta
+from django.db.models.functions import TruncMonth, TruncYear, TruncDay
 
 
 class ExtendLimit(APIView):

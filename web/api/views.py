@@ -71,10 +71,6 @@ class AddTarget(APIView):
             description = data.get("description")
             org_id = data.get("org_id")
 
-            # Validate domain name
-            if not validators.domain(domain_name):
-                return Response({"status": False, "message": "Invalid domain or IP"})
-
             project = Project.objects.get(id=org_id)
 
             added_target_count = 0
@@ -144,6 +140,11 @@ class AddTarget(APIView):
                     )
 
                     for domain_name in domains:
+                        # Validate domain name
+                        if not validators.domain(domain_name):
+                            return Response(
+                                {"status": False, "message": "Invalid domain or IP"}
+                            )
                         if not Domain.objects.filter(name=domain_name).exists():
                             domain, created = Domain.objects.get_or_create(
                                 name=domain_name,

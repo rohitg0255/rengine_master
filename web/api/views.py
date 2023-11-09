@@ -140,11 +140,6 @@ class AddTarget(APIView):
                     )
 
                     for domain_name in domains:
-                        # Validate domain name
-                        if not validators.domain(domain_name):
-                            return Response(
-                                {"status": False, "message": "Invalid domain or IP"}
-                            )
                         if not Domain.objects.filter(name=domain_name).exists():
                             domain, created = Domain.objects.get_or_create(
                                 name=domain_name,

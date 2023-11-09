@@ -541,8 +541,7 @@ class Dashboard(APIView):
         data = req.data
         orgId = data["org_id"]
         try:
-            domain_ = Project.objects.get(id=orgId).get_domains()
-
+            domain_ = Domain.objects.filter(project_id=orgId)
             p = (
                 domain_.annotate(month=TruncMonth("subdomain__discovered_date"))
                 .values("month")

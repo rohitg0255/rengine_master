@@ -1,6 +1,5 @@
 from django.db import models
 from scanEngine.models import Notification
-from targetApp.models import Domain
 
 
 class SearchHistory(models.Model):
@@ -22,9 +21,6 @@ class Project(models.Model):
 
     def __str__(self):
         return self.slug
-
-    def get_domains(self):
-        return Domain.objects.filter(project__in=Project.objects.filter(id=self.id))
 
 
 class OpenAiAPIKey(models.Model):

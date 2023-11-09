@@ -145,17 +145,17 @@ urlpatterns = [
     # ----------------------------------------------------------------
     # path("add/organization/", AddOrganization.as_view(), name="addOrganization"),
     # path("add/project/", AddProject.as_view(), name="addProject"),  ##add project
-    path("extend/limit/", ExtendLimit.as_view(), name="extendLimit"),
-    path("add/target/multiple/", AddTarget.as_view(), name="addTarget"),
+    path("extend/limit", ExtendLimit.as_view(), name="extendLimit"),
+    path("add/target/multiple", AddTarget.as_view(), name="addTarget"),
     path("dashboard", Dashboard.as_view(), name="dashboard"),  #######
     path("notification", NotificationAPi.as_view(), name="notificationApi"),
-    path("org_scan_status/", OrgScanStatus.as_view(), name="org_scan_status"),
+    path("org_scan_status", OrgScanStatus.as_view(), name="org_scan_status"),
     path(
-        "schedule_start_scan/", ScheduleStartScan.as_view(), name="schedule_start_scan"
+        "schedule_start_scan", ScheduleStartScan.as_view(), name="schedule_start_scan"
     ),
-    path("loginAt/", loginview.as_view(), name="loginApi"),
-    path("targetSummary/", targetSummary.as_view(), name="targetSummary"),
-    path("logoutAt/", logoutview.as_view(), name="logoutApi"),
+    path("loginAt", loginview.as_view(), name="loginApi"),
+    path("targetSummary", targetSummary.as_view(), name="targetSummary"),
+    path("logoutAt", logoutview.as_view(), name="logoutApi"),
 ]
 
 urlpatterns += router.urls

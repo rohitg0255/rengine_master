@@ -147,7 +147,7 @@ urlpatterns = [
     # path("add/project/", AddProject.as_view(), name="addProject"),  ##add project
     path("extend/limit/", ExtendLimit.as_view(), name="extendLimit"),
     path("add/target/multiple/", AddTarget.as_view(), name="addTarget"),
-    path("dashboard", Dashboard.as_view(), name="dashboard"),  #######
+    path("dashboard/", Dashboard.as_view(), name="dashboard"),  #######
     path("notification/", NotificationAPi.as_view(), name="notificationApi"),
     path("org_scan_status/", OrgScanStatus.as_view(), name="org_scan_status"),
     path(

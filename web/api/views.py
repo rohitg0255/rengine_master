@@ -179,6 +179,7 @@ class AddTarget(APIView):
                         logging.info(f"Added new port {port.number}.")
         except Exception as e:
             logging.info(e)
+            print(e)
             context["desc"] = f"Exception while adding domain: {e}"
             return Response(context)
 

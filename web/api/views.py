@@ -1006,13 +1006,8 @@ class ScheduleStartScan(APIView):
             out_of_scope_subdomain = data.get("outOfScopeSubdomainTextarea")
             engine_type = data["scanMode"]  # imp
             scheduled_mode = data.get("scheduledMode")
-            
-            paths = data.get("filterPath").split()
-            filterPath = [s.rstrip() for s in paths if s]
-            if len(filterPath) > 0:
-                filterPath = filterPath[0]
-            else:
-                filterPath = ''
+            paths = data.get("filterPath")
+
             print(
                 list_of_domains,
                 host_id,
@@ -1024,6 +1019,16 @@ class ScheduleStartScan(APIView):
                 scheduled_mode,
                 "rock",
             )
+            if paths:
+                paths = paths.split()
+                filterPath = [s.rstrip() for s in paths if s]
+            else:
+                filterPath = []
+
+            if len(filterPath) > 0:
+                filterPath = filterPath[0]
+            else:
+                filterPath = ""
             # get imported subdomains
             if import_subdomain:
                 imported_subdomains = [
@@ -1217,18 +1222,17 @@ class ScheduleStartScan(APIView):
                         domain = get_object_or_404(Domain, id=domain_id)
                         scan_history_id = create_scan_object(domain_id, engine_type)
                         scan = ScanHistory.objects.get(pk=scan_history_id)
-                         # Start the celery task
+                        # Start the celery task
                         kwargs = {
-                            'scan_history_id': scan.id,
-                            'domain_id': domain.id,
-                            'engine_id': engine_type,
-                            'scan_type': LIVE_SCAN,
-                            'results_dir': '/usr/src/scan_results',
-                            'imported_subdomains': imported_subdomains,
-                            'out_of_scope_subdomains': out_of_scope_subdomains,
-                            'url_filter': filterPath
+                            "scan_history_id": scan.id,
+                            "domain_id": domain.id,
+                            "engine_id": engine_type,
+                            "scan_type": LIVE_SCAN,
+                            "results_dir": "/usr/src/scan_results",
+                            "imported_subdomains": imported_subdomains,
+                            "out_of_scope_subdomains": out_of_scope_subdomains,
+                            "url_filter": filterPath,
                         }
-                        
                         initiate_scan.apply_async(kwargs=kwargs)
                         scan.save()
                     return Response({"status": True})

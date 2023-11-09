@@ -1,6 +1,6 @@
 from django.apps import apps
 from django.db import models
-from dashboard.models import *
+from dashboard.models import Project
 
 
 class HistoricalIP(models.Model):

@@ -16,7 +16,6 @@ class Project(models.Model):
     slug = models.SlugField(unique=True)
     insert_date = models.DateTimeField()
     limit = models.IntegerField(default=0)
-    domains = models.ManyToManyField("Domain", related_name="domains")
     notification = models.ForeignKey(
         Notification, on_delete=models.CASCADE, related_name="notification"
     )

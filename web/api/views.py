@@ -302,7 +302,7 @@ class targetSummary(APIView):
         context = {}
         id = request.query_params.get("id")
         target = get_object_or_404(Domain, id=id)
-        context["target"] = target
+        context["target"] = model_to_dict(target)
         context["scan_count"] = ScanHistory.objects.filter(domain_id=id).count()
         try:
             last_week = timezone.now() - timedelta(days=7)
@@ -328,7 +328,7 @@ class targetSummary(APIView):
                 http_status__exact=200
             ).count()
 
-            context["scan_engines"] = EngineType.objects.all()
+            context["scan_engines"] = EngineType.objects.values()
 
             unknown_count = vulnerabilities.filter(severity=-1).count()
             info_count = vulnerabilities.filter(severity=0).count()
@@ -368,16 +368,18 @@ class targetSummary(APIView):
                 employees__in=ScanHistory.objects.filter(id=id)
             ).count()
 
-            context["recent_scans"] = ScanHistory.objects.filter(domain=id).order_by(
-                "-start_scan_date"
-            )[:4]
+            context["recent_scans"] = (
+                ScanHistory.objects.filter(domain=id)
+                .order_by("-start_scan_date")
+                .values()[:4]
+            )
 
             context["vulnerability_count"] = vulnerability_count
 
             context["vulnerability_list"] = (
                 Vulnerability.objects.filter(target_domain__id=id)
                 .order_by("-severity")
-                .all()[:30]
+                .values()[:30]
             )
 
             context["http_status_breakdown"] = (
@@ -420,8 +422,9 @@ class targetSummary(APIView):
                 )
                 .annotate(count=Count("iso"))
                 .order_by("-count")
+                .values()
             )
-
+            print(context)
             return Response(context)
         except Exception as e:
             print(e)

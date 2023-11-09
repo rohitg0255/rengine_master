@@ -143,7 +143,7 @@ urlpatterns = [
     path("scan_status/", ScanStatus.as_view(), name="scan_status"),
     path("action/create/project", CreateProjectApi.as_view(), name="create_project"),
     # ----------------------------------------------------------------
-    path("add/organization/", AddOrganization.as_view(), name="addOrganization"),
+    # path("add/organization/", AddOrganization.as_view(), name="addOrganization"),
     path("add/project/", AddProject.as_view(), name="addProject"),  ##add project
     path("extend/limit/", ExtendLimit.as_view(), name="extendLimit"),
     path("add/target/multiple/", AddTarget.as_view(), name="addTarget"),

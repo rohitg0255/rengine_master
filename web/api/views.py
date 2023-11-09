@@ -16,6 +16,7 @@ from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.status import HTTP_400_BAD_REQUEST
+from django_celery_beat.models import ClockedSchedule, IntervalSchedule, PeriodicTask
 
 from recon_note.models import *
 from reNgine.celery import app
@@ -998,8 +999,6 @@ class ScheduleStartScan(APIView):
             host_id = data.get("domainId")
             is_schedule = data.get("schedule")
             project = data.get("project")
-            # for subdomain in data["importSubdomainTextArea"].split("\n")
-            # for subdomain in request.POST["outOfScopeSubdomainTextarea"].split(",")
             import_subdomain = data.get("importSubdomainTextArea")
             out_of_scope_subdomain = data.get("outOfScopeSubdomainTextarea")
             engine_type = data["scanMode"]  # imp

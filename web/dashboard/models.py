@@ -23,9 +23,6 @@ class Project(models.Model):
     def __str__(self):
         return self.slug
 
-    def get_domains(self):
-        return Domain.objects.filter(project__in=Project.objects.filter(id=self.id))
-
 
 class OpenAiAPIKey(models.Model):
     id = models.AutoField(primary_key=True)

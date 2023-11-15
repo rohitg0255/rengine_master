@@ -279,26 +279,29 @@ class loginview(APIView):
     authentication_classes = []
 
     def post(self, request):
-        req = self.request
-        data = req.data
-        print(data, "data")
-        context = {}
-        user = authenticate(
-            request,
-            username=data["username"],
-            password=data["password"],
-        )
-        print(user)
-        context["user"] = model_to_dict(user)
-        if user:
-            csrf_token = get_token(request)
-            loggedIn = login(request, user)
+        try:
+            req = self.request
+            data = req.data
+            print(data, "data")
+            context = {}
+            user = authenticate(
+                request,
+                username=data["username"],
+                password=data["password"],
+            )
+            print(user)
+            context["user"] = model_to_dict(user)
+            if user:
+                csrf_token = get_token(request)
+                loggedIn = login(request, user)
 
-            context["loggedIn"] = loggedIn
-            context["csrf_token"] = csrf_token
+                context["loggedIn"] = loggedIn
+                context["csrf_token"] = csrf_token
 
+                return Response(context)
+        except Exception as e:
+            context["error"] = str(e)
             return Response(context)
-        return Response(context)
 
 
 class targetSummary(APIView):

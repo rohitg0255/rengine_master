@@ -29,7 +29,6 @@ from reNgine.gpt import GPTAttackSuggestionGenerator
 from reNgine.utilities import is_safe_path
 from scanEngine.models import *
 from startScan.models import *
-from startScan.models import EndPoint
 from targetApp.models import *
 from dashboard.models import *
 
@@ -64,6 +63,136 @@ def get_ips_from_cidr_range(target):
         return [str(ip) for ip in ipaddress.IPv4Network(target)]
     except Exception as e:
         logger.error(f"{target} is not a valid CIDR range. Skipping.")
+
+
+class Scans(APIView):
+    def get(self, request):
+        slug = request.query_params.get("slug")
+        host = ScanHistory.objects.filter(domain__project__slug=slug).order_by(
+            "-start_scan_date"
+        )
+
+
+class Summary(APIView):
+    def get(self, request):
+        id = request.query_params.get("id")
+        context = {}
+
+        # Domain
+        target = get_object_or_404(Domain, id=id)
+        context["target"] = target
+
+        # Scan History
+        scan = ScanHistory.objects.filter(domain__id=id)
+        context["recent_scans"] = scan.order_by("-start_scan_date")[:4]
+        context["scan_count"] = scan.count()
+        last_week = timezone.now() - timedelta(days=7)
+        context["this_week_scan_count"] = scan.filter(
+            start_scan_date__gte=last_week
+        ).count()
+
+        # Subdomains
+        subdomains = (
+            Subdomain.objects.filter(target_domain__id=id).values("name").distinct()
+        )
+        context["subdomain_count"] = subdomains.count()
+        context["alive_count"] = subdomains.filter(http_status__exact=200).count()
+
+        # Endpoints
+        endpoints = (
+            EndPoint.objects.filter(target_domain__id=id).values("http_url").distinct()
+        )
+        context["endpoint_count"] = endpoints.count()
+        context["endpoint_alive_count"] = endpoints.filter(
+            http_status__exact=200
+        ).count()
+
+        # Vulnerabilities
+        vulnerabilities = Vulnerability.objects.filter(target_domain__id=id)
+        unknown_count = vulnerabilities.filter(severity=-1).count()
+        info_count = vulnerabilities.filter(severity=0).count()
+        low_count = vulnerabilities.filter(severity=1).count()
+        medium_count = vulnerabilities.filter(severity=2).count()
+        high_count = vulnerabilities.filter(severity=3).count()
+        critical_count = vulnerabilities.filter(severity=4).count()
+        ignore_info_count = sum([low_count, medium_count, high_count, critical_count])
+        context["unknown_count"] = unknown_count
+        context["info_count"] = info_count
+        context["low_count"] = low_count
+        context["medium_count"] = medium_count
+        context["high_count"] = high_count
+        context["critical_count"] = critical_count
+        context["total_vul_ignore_info_count"] = ignore_info_count
+        context["most_common_vulnerability"] = (
+            vulnerabilities.exclude(severity=0)
+            .values("name", "severity")
+            .annotate(count=Count("name"))
+            .order_by("-count")[:10]
+        )
+        context["vulnerability_count"] = vulnerabilities.count()
+
+        # HTTP Statuses
+        context["http_status_breakdown"] = (
+            subdomains.exclude(http_status=0)
+            .values("http_status")
+            .annotate(Count("http_status"))
+        )
+
+        # Country ISOs
+        subdomains = Subdomain.objects.filter(target_domain__id=id)
+        ip_addresses = IpAddress.objects.filter(ip_addresses__in=subdomains)
+        context["asset_countries"] = (
+            CountryISO.objects.filter(ipaddress__in=ip_addresses)
+            .annotate(count=Count("iso"))
+            .order_by("-count")
+        )
+
+        # Technology Stack
+        context["technology_stack"] = subdomains.values(
+            "name",
+            "ip_addresses__address",
+            "ip_addresses__ports__number",
+            "technologies__name",
+        ).distinct()
+
+        context["vulnerability_list"] = vulnerabilities.order_by("-severity").all()[:30]
+
+
+class UpdateTarget(APIView):
+    def post(self, request):
+        try:
+            req = self.request
+            data = req.data
+            try:
+                name = data["name"]
+                h1_team_handle = data.get("h1_team_handle", None)
+                description = data.get("description", None)
+
+                update = {}
+
+                if h1_team_handle != None:
+                    update["h1_team_handle"] = h1_team_handle
+                if description != None:
+                    update["description"] = description
+
+                target = Domain.objects.filter(name=name).update(**update)
+                print(target, "newio")
+
+                return Response({"status": True})
+            except Exception as e:
+                return Response({"error": str(e)})
+        except Exception as e:
+            return Response({"error": str(e)})
+
+
+class DeleteTarget(APIView):
+    def get(self, request):
+        try:
+            id = request.query_params.get("id")
+            domain = Domain.objects.get(id=id).delete()
+            return Response({"status": True})
+        except Exception as e:
+            return Response({"error": str(e)})
 
 
 class AddTarget(APIView):
@@ -444,20 +573,114 @@ class logoutview(APIView):
         return Response({"status": True})
 
 
+class SettingsAPi(APIView):
+    def get(self, request):
+        try:
+            project = request.query_params.get("project")
+            proj_obj = Project.objects.select_related(
+                "OpenAiAPIKey", "NetlasAPIKey", "Proxy"
+            ).get(id=project)
+            OpenAiAPIKey = model_to_dict(proj_obj.OpenAiAPIKey)
+            NetlasAPIKey = model_to_dict(proj_obj.NetlasAPIKey)
+            Proxy = model_to_dict(proj_obj.Proxy)
+            return Response(
+                {
+                    "OpenAiAPIKey": OpenAiAPIKey,
+                    "NetlasAPIKey": NetlasAPIKey,
+                    "Proxy": Proxy,
+                }
+            )
+        except Exception as e:
+            return Response({"error": e})
+
+    def post(self, request):
+        try:
+            req = self.request
+            data = req.data
+            context = {}
+
+            project = req.query_params.get("project")
+            select = data["select"]
+            if "OpenAiAPIKey" in select:
+                update = {}
+                key = data.get("key", None)
+                if key != None:
+                    update["key"] = key
+                
+                    try:
+                        OpenAiAPIKey = list(
+                            Project.objects.filter(id=project).values_list(
+                                "OpenAiAPIKey__id", flat=True
+                            )
+                        )
+                        print(OpenAiAPIKey, "dgg")
+                        OpenAiAPIKey = OpenAiAPIKey.objects.filter(id=OpenAiAPIKey[0]).update(
+                            **update
+                        )
+                        print(OpenAiAPIKey, "newio")
+
+                        context["status"]=True
+                    except Exception as e:
+                        context["error"]=str(e)
+
+            if "NetlasAPIKey" in select:
+                update = {}
+                key = data.get("key", None)
+                if key != None:
+                    update["key"] = key
+                
+                    try:
+                        NetlasAPIKey = list(
+                            Project.objects.filter(id=project).values_list(
+                                "NetlasAPIKey__id", flat=True
+                            )
+                        )
+                        print(NetlasAPIKey, "dgg")
+                        NetlasAPIKey = NetlasAPIKey.objects.filter(id=NetlasAPIKey[0]).update(
+                            **update
+                        )
+                        print(NetlasAPIKey, "newio")
+
+                        context["status"]=True
+                    except Exception as e:
+                        context["error"]=str(e)
+
+            if "Proxy" in select:
+                update = {}
+                use_proxy = data.get("use_proxy", None)
+                if use_proxy != None:
+                    update["use_proxy"] = use_proxy
+                proxies = data.get("proxies", None)
+                if proxies != None:
+                    update["proxies"] = proxies
+                if use_proxy or proxies:
+                    try:
+                        Proxy = list(
+                            Project.objects.filter(id=project).values_list(
+                                "Proxy__id", flat=True
+                            )
+                        )
+                        print(Proxy, "dgg")
+                        Proxy = Proxy.objects.filter(id=Proxy[0]).update(
+                            **update
+                        )
+                        print(Proxy, "newio")
+
+                        context["status"]=True
+                    except Exception as e:
+                        context["error"]=str(e)
+            return Response(context)
+        except Exception as e:
+            context["error"]=str(e)
+            return Response(context)
+
+
 class NotificationAPi(APIView):
     def get(self, request):
         try:
             project = request.query_params.get("project")
             proj_obj = Project.objects.select_related("notification").get(id=project)
-            notification = Notification.objects.get(
-                id=list(
-                    Project.objects.filter(id=project).values_list(
-                        "notification", flat=True
-                    )
-                )[0]
-            )
             print(
-                notification,
                 proj_obj.notification.send_to_slack,
                 proj_obj.notification.send_to_telegram,
                 "dgg",
@@ -519,10 +742,9 @@ class NotificationAPi(APIView):
             print(update, "gee")
             try:
                 notification = list(
-                    Project.objects.filter(id=project)
-                    .select_related("notification")
-                    .all()
-                    .values_list("notification__id", flat=True)
+                    Project.objects.filter(id=project).values_list(
+                        "notification__id", flat=True
+                    )
                 )
                 print(notification, "dgg")
                 notn_obj = Notification.objects.filter(id=notification[0]).update(
@@ -1319,11 +1541,24 @@ class CreateProjectApi(APIView):
         try:
             notification = Notification()
             notification.save()
+
+            OpenAiAPIKey = OpenAiAPIKey()
+            OpenAiAPIKey.save()
+
+            NetlasAPIKey = NetlasAPIKey()
+            NetlasAPIKey.save()
+
+            Proxy = Proxy()
+            Proxy.save()
+
             project = Project.objects.create(
                 name=project_name,
                 slug=slug,
                 insert_date=insert_date,
                 notification=notification,
+                OpenAiAPIKey=OpenAiAPIKey,
+                NetlasAPIKey=NetlasAPIKey,
+                Proxy=Proxy,
             )
             response = {"status": True, "project_name": project_name}
             return Response(response)

@@ -1,5 +1,5 @@
 from django.db import models
-from scanEngine.models import Notification
+from scanEngine.models import Notification, Proxy
 
 
 class SearchHistory(models.Model):
@@ -17,6 +17,15 @@ class Project(models.Model):
     limit = models.IntegerField(default=0)
     notification = models.ForeignKey(
         Notification, null=True, on_delete=models.CASCADE, related_name="notification"
+    )
+    OpenAiAPIKey = models.ForeignKey(
+        OpenAiAPIKey, null=True, on_delete=models.CASCADE, related_name="OpenAiAPIKey"
+    )
+    NetlasAPIKey = models.ForeignKey(
+        NetlasAPIKey, null=True, on_delete=models.CASCADE, related_name="NetlasAPIKey"
+    )
+    Proxy = models.ForeignKey(
+        Proxy, null=True, on_delete=models.CASCADE, related_name="Proxy"
     )
 
     def __str__(self):

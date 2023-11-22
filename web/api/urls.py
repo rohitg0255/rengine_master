@@ -23,6 +23,7 @@ router.register(r"listScanLogs", ListScanLogsViewSet)
 urlpatterns = [
     url("^", include(router.urls)),
     path("add/target/", AddTarget.as_view(), name="addTarget"),
+    path("delete/target/", DeleteTarget.as_view(), name="deleteTarget"),
     path("add/recon_note/", AddReconNote.as_view(), name="addReconNote"),
     path("queryTechnologies/", ListTechnology.as_view(), name="listTechnologies"),
     path("queryPorts/", ListPorts.as_view(), name="listPorts"),
@@ -149,6 +150,10 @@ urlpatterns = [
     path("add/target/multiple", AddTarget.as_view(), name="addTarget"),
     path("dashboard", Dashboard.as_view(), name="dashboard"),  #######
     path("notification", NotificationAPi.as_view(), name="notificationApi"),
+    path("settings", SettingsAPi.as_view(), name="settingsApi"),
+    path("update/target", UpdateTarget.as_view(), name="UpdateTargetApi"),
+    path("get/scans", Scans.as_view(), name="ScansApi"),
+    path("get/summary", Summary.as_view(), name="SummaryApi"),
     path("org_scan_status", OrgScanStatus.as_view(), name="org_scan_status"),
     path(
         "schedule_start_scan", ScheduleStartScan.as_view(), name="schedule_start_scan"

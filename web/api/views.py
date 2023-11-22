@@ -569,8 +569,11 @@ class targetSummary(APIView):
 
 class logoutview(APIView):
     def get(self, request):
-        logout(request)
-        return Response({"status": True})
+        try:
+            logout(request)
+            return Response({"status": True})
+        except Exception as e:
+            return Response({"error": e})
 
 
 class SettingsAPi(APIView):
@@ -606,7 +609,7 @@ class SettingsAPi(APIView):
                 key = data.get("key", None)
                 if key != None:
                     update["key"] = key
-                
+
                     try:
                         OpenAiAPIKey = list(
                             Project.objects.filter(id=project).values_list(
@@ -614,21 +617,21 @@ class SettingsAPi(APIView):
                             )
                         )
                         print(OpenAiAPIKey, "dgg")
-                        OpenAiAPIKey = OpenAiAPIKey.objects.filter(id=OpenAiAPIKey[0]).update(
-                            **update
-                        )
+                        OpenAiAPIKey = OpenAiAPIKey.objects.filter(
+                            id=OpenAiAPIKey[0]
+                        ).update(**update)
                         print(OpenAiAPIKey, "newio")
 
-                        context["status"]=True
+                        context["status"] = True
                     except Exception as e:
-                        context["error"]=str(e)
+                        context["error"] = str(e)
 
             if "NetlasAPIKey" in select:
                 update = {}
                 key = data.get("key", None)
                 if key != None:
                     update["key"] = key
-                
+
                     try:
                         NetlasAPIKey = list(
                             Project.objects.filter(id=project).values_list(
@@ -636,14 +639,14 @@ class SettingsAPi(APIView):
                             )
                         )
                         print(NetlasAPIKey, "dgg")
-                        NetlasAPIKey = NetlasAPIKey.objects.filter(id=NetlasAPIKey[0]).update(
-                            **update
-                        )
+                        NetlasAPIKey = NetlasAPIKey.objects.filter(
+                            id=NetlasAPIKey[0]
+                        ).update(**update)
                         print(NetlasAPIKey, "newio")
 
-                        context["status"]=True
+                        context["status"] = True
                     except Exception as e:
-                        context["error"]=str(e)
+                        context["error"] = str(e)
 
             if "Proxy" in select:
                 update = {}
@@ -661,17 +664,15 @@ class SettingsAPi(APIView):
                             )
                         )
                         print(Proxy, "dgg")
-                        Proxy = Proxy.objects.filter(id=Proxy[0]).update(
-                            **update
-                        )
+                        Proxy = Proxy.objects.filter(id=Proxy[0]).update(**update)
                         print(Proxy, "newio")
 
-                        context["status"]=True
+                        context["status"] = True
                     except Exception as e:
-                        context["error"]=str(e)
+                        context["error"] = str(e)
             return Response(context)
         except Exception as e:
-            context["error"]=str(e)
+            context["error"] = str(e)
             return Response(context)
 
 

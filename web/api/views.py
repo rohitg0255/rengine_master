@@ -186,9 +186,11 @@ class UpdateTarget(APIView):
 
 
 class DeleteTarget(APIView):
-    def get(self, request):
+    def post(self, request):
         try:
-            targets = request.query_params.get("targets")
+            req = self.request
+            data = req.data
+            targets = data.get("targets")
             for id in targets:
                 domain = Domain.objects.get(id=id).delete()
             return Response({"status": True})

@@ -188,8 +188,9 @@ class UpdateTarget(APIView):
 class DeleteTarget(APIView):
     def get(self, request):
         try:
-            id = request.query_params.get("id")
-            domain = Domain.objects.get(id=id).delete()
+            targets = request.query_params.get("targets")
+            for id in targets:
+                domain = Domain.objects.get(id=id).delete()
             return Response({"status": True})
         except Exception as e:
             return Response({"error": str(e)})

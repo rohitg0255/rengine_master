@@ -9,6 +9,22 @@ class SearchHistory(models.Model):
         return self.query
 
 
+class OpenAiAPIKey(models.Model):
+    id = models.AutoField(primary_key=True)
+    key = models.CharField(max_length=500)
+
+    def __str__(self):
+        return self.key
+
+
+class NetlasAPIKey(models.Model):
+    id = models.AutoField(primary_key=True)
+    key = models.CharField(max_length=500)
+
+    def __str__(self):
+        return self.key
+
+
 class Project(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=500)
@@ -30,19 +46,3 @@ class Project(models.Model):
 
     def __str__(self):
         return self.slug
-
-
-class OpenAiAPIKey(models.Model):
-    id = models.AutoField(primary_key=True)
-    key = models.CharField(max_length=500)
-
-    def __str__(self):
-        return self.key
-
-
-class NetlasAPIKey(models.Model):
-    id = models.AutoField(primary_key=True)
-    key = models.CharField(max_length=500)
-
-    def __str__(self):
-        return self.key

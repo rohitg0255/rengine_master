@@ -64,20 +64,25 @@ def get_ips_from_cidr_range(target):
     except Exception as e:
         logger.error(f"{target} is not a valid CIDR range. Skipping.")
 
+
 def theta_scan(num):
-    if(num==-1):
+    if num == -1:
         return "Pending"
-    elif(num==0):
+    elif num == 0:
         return "Failed"
-    elif(num==1):
-        return In "Progress"
-    elif(num==2):
+    elif num == 1:
+        return "In Progress"
+    elif num == 2:
         return "Successful"
-    elif(num==3):
+    elif num == 3:
         return "Aborted"
     else:
         return "Unknown"
+
+
 from django.contrib.humanize.templatetags import humanize
+
+
 class Scans(APIView):
     def get(self, request):
         try:
@@ -85,8 +90,8 @@ class Scans(APIView):
             host = (
                 ScanHistory.objects.filter(domain__project__slug=slug)
                 .order_by("-start_scan_date")
-                .annotate(status=theta_scan('scan_status'))
-                .annotate(last_scan=humanize.naturaltime('start_scan_date'))
+                .annotate(status=theta_scan("scan_status"))
+                .annotate(last_scan=humanize.naturaltime("start_scan_date"))
                 .values(
                     "domain__id",
                     "domain__name",

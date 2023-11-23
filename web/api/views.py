@@ -72,7 +72,13 @@ class Scans(APIView):
             host = (
                 ScanHistory.objects.filter(domain__project__slug=slug)
                 .order_by("-start_scan_date")
-                .values("domain__id","domain__name","scan_type__name","start_scan_date","scan_status")
+                .values(
+                    "domain__id",
+                    "domain__name",
+                    "scan_type__engine_name",
+                    "start_scan_date",
+                    "scan_status",
+                )
             )
             print(host, "ss")
             return Response({"host": host})

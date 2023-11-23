@@ -611,13 +611,13 @@ class SettingsAPi(APIView):
             select = data["select"]
             if "OpenAiAPIKey" in select:
                 update = {}
-                key = data.get("key", None)
-                if key != None:
-                    update["key"] = key
+                openaikey = data.get("openaikey", None)
+                if openaikey != None:
+                    update["openaikey"] = openaikey
 
                     try:
                         OpenAiAPIKey = list(
-                            Project.objects.filter(id=project).values_list(
+                            Project.objects.filter(name=project).values_list(
                                 "OpenAiAPIKey__id", flat=True
                             )
                         )
@@ -633,13 +633,13 @@ class SettingsAPi(APIView):
 
             if "NetlasAPIKey" in select:
                 update = {}
-                key = data.get("key", None)
-                if key != None:
-                    update["key"] = key
+                netlaskey = data.get("netlaskey", None)
+                if netlaskey != None:
+                    update["netlaskey"] = netlaskey
 
                     try:
                         NetlasAPIKey = list(
-                            Project.objects.filter(id=project).values_list(
+                            Project.objects.filter(name=project).values_list(
                                 "NetlasAPIKey__id", flat=True
                             )
                         )
@@ -664,7 +664,7 @@ class SettingsAPi(APIView):
                 if use_proxy or proxies:
                     try:
                         Proxy = list(
-                            Project.objects.filter(id=project).values_list(
+                            Project.objects.filter(name=project).values_list(
                                 "Proxy__id", flat=True
                             )
                         )

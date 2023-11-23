@@ -66,6 +66,7 @@ def get_ips_from_cidr_range(target):
 
 
 def theta_scan(num):
+    print(num, "as")
     if num == -1:
         return "Pending"
     elif num == 0:
@@ -83,8 +84,12 @@ def theta_scan(num):
 from django.contrib.humanize.templatetags import humanize
 
 
-def natualT(dt):
-    pass
+def naturalT(dt):
+    print(dt, "ds")
+    if dt:
+        return humanize.naturaltime(dt)
+    else:
+        return "Never Scanned"
 
 
 class Scans(APIView):
@@ -95,10 +100,7 @@ class Scans(APIView):
                 ScanHistory.objects.filter(domain__project__slug=slug)
                 .order_by("-start_scan_date")
                 .annotate(status=theta_scan("scan_status"))
-                .annotate(
-                    last_scan="start_scan_date"
-                    | humanize.naturaltime("start_scan_date")
-                )
+                .annotate(last_scan=naturalT("start_scan_date"))
                 .values(
                     "domain__id",
                     "domain__name",

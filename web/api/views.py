@@ -586,7 +586,7 @@ class SettingsAPi(APIView):
             project = request.query_params.get("project")
             proj_obj = Project.objects.select_related(
                 "OpenAiAPIKey", "NetlasAPIKey", "Proxy"
-            ).get(id=project)
+            ).get(name=project)
             OpenAiAPIKey = model_to_dict(proj_obj.OpenAiAPIKey)
             NetlasAPIKey = model_to_dict(proj_obj.NetlasAPIKey)
             Proxy = model_to_dict(proj_obj.Proxy)

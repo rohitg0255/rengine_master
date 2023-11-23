@@ -111,6 +111,7 @@ class Scans(APIView):
                     "scan_status",
                 )
             )
+            print(host, "dss")
             for point in host:
                 values.append(
                     {

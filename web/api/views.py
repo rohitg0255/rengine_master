@@ -220,6 +220,7 @@ class Summary(APIView):
             ]
             return Response(context)
         except Exception as e:
+            print(e, "as")
             return Response({"error": str(e)})
 
 

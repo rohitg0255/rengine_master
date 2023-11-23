@@ -141,7 +141,7 @@ class Summary(APIView):
 
             # Scan History
             scan = ScanHistory.objects.filter(domain__id=id)
-            context["recent_scans"] = scan.order_by("-start_scan_date")[:4]
+            context["recent_scans"] = scan.values().order_by("-start_scan_date")[:4]
             context["scan_count"] = scan.count()
             last_week = timezone.now() - timedelta(days=7)
             context["this_week_scan_count"] = scan.filter(
@@ -205,6 +205,7 @@ class Summary(APIView):
             context["asset_countries"] = (
                 CountryISO.objects.filter(ipaddress__in=ip_addresses)
                 .annotate(count=Count("iso"))
+                .values()
                 .order_by("-count")
             )
 
@@ -216,10 +217,10 @@ class Summary(APIView):
                 "technologies__name",
             ).distinct()
 
-            context["vulnerability_list"] = vulnerabilities.order_by("-severity").all()[
-                :30
-            ]
-            print(context,"ctx")
+            context["vulnerability_list"] = (
+                vulnerabilities.order_by("-severity").all().values()[:30]
+            )
+            print(context, "ctx")
             return Response(context)
         except Exception as e:
             print(e, "as")

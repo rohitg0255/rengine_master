@@ -616,16 +616,15 @@ class SettingsAPi(APIView):
                     update["openaikey"] = openaikey
 
                     try:
-                        OpenAiAPIKey = list(
+                        OpenAiAPIKeylist = list(
                             Project.objects.filter(name=project).values_list(
                                 "OpenAiAPIKey__id", flat=True
                             )
                         )
-                        print(OpenAiAPIKey, "dgg")
-                        OpenAiAPIKey = OpenAiAPIKey.objects.filter(
-                            id=OpenAiAPIKey[0]
+                        openAiAPIKey = OpenAiAPIKey.objects.filter(
+                            id=OpenAiAPIKeylist[0]
                         ).update(**update)
-                        print(OpenAiAPIKey, "newio")
+                        print(openAiAPIKey, "newio")
 
                         context["status"] = True
                     except Exception as e:
@@ -638,16 +637,15 @@ class SettingsAPi(APIView):
                     update["netlaskey"] = netlaskey
 
                     try:
-                        NetlasAPIKey = list(
+                        NetlasAPIKeylist = list(
                             Project.objects.filter(name=project).values_list(
                                 "NetlasAPIKey__id", flat=True
                             )
                         )
-                        print(NetlasAPIKey, "dgg")
-                        NetlasAPIKey = NetlasAPIKey.objects.filter(
-                            id=NetlasAPIKey[0]
+                        netlasAPIKey = NetlasAPIKey.objects.filter(
+                            id=NetlasAPIKeylist[0]
                         ).update(**update)
-                        print(NetlasAPIKey, "newio")
+                        print(netlasAPIKey, "newio")
 
                         context["status"] = True
                     except Exception as e:
@@ -663,14 +661,13 @@ class SettingsAPi(APIView):
                     update["proxies"] = proxies
                 if use_proxy or proxies:
                     try:
-                        Proxy = list(
+                        Proxylist = list(
                             Project.objects.filter(name=project).values_list(
                                 "Proxy__id", flat=True
                             )
                         )
-                        print(Proxy, "dgg")
-                        Proxy = Proxy.objects.filter(id=Proxy[0]).update(**update)
-                        print(Proxy, "newio")
+                        proxy = Proxy.objects.filter(id=Proxylist[0]).update(**update)
+                        print(proxy, "newio")
 
                         context["status"] = True
                     except Exception as e:

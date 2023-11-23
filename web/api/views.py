@@ -67,95 +67,109 @@ def get_ips_from_cidr_range(target):
 
 class Scans(APIView):
     def get(self, request):
-        slug = request.query_params.get("slug")
-        host = ScanHistory.objects.filter(domain__project__slug=slug).order_by(
-            "-start_scan_date"
-        )
+        try:
+            slug = request.query_params.get("slug")
+            host = ScanHistory.objects.filter(domain__project__slug=slug).order_by(
+                "-start_scan_date"
+            )
+            return Response({"host": host})
+        except Exception as e:
+            return Response({"error": str(e)})
 
 
 class Summary(APIView):
     def get(self, request):
-        id = request.query_params.get("id")
-        context = {}
+        try:
+            id = request.query_params.get("id")
+            context = {}
 
-        # Domain
-        target = get_object_or_404(Domain, id=id)
-        context["target"] = target
+            # Domain
+            target = get_object_or_404(Domain, id=id)
+            context["target"] = target
 
-        # Scan History
-        scan = ScanHistory.objects.filter(domain__id=id)
-        context["recent_scans"] = scan.order_by("-start_scan_date")[:4]
-        context["scan_count"] = scan.count()
-        last_week = timezone.now() - timedelta(days=7)
-        context["this_week_scan_count"] = scan.filter(
-            start_scan_date__gte=last_week
-        ).count()
+            # Scan History
+            scan = ScanHistory.objects.filter(domain__id=id)
+            context["recent_scans"] = scan.order_by("-start_scan_date")[:4]
+            context["scan_count"] = scan.count()
+            last_week = timezone.now() - timedelta(days=7)
+            context["this_week_scan_count"] = scan.filter(
+                start_scan_date__gte=last_week
+            ).count()
 
-        # Subdomains
-        subdomains = (
-            Subdomain.objects.filter(target_domain__id=id).values("name").distinct()
-        )
-        context["subdomain_count"] = subdomains.count()
-        context["alive_count"] = subdomains.filter(http_status__exact=200).count()
+            # Subdomains
+            subdomains = (
+                Subdomain.objects.filter(target_domain__id=id).values("name").distinct()
+            )
+            context["subdomain_count"] = subdomains.count()
+            context["alive_count"] = subdomains.filter(http_status__exact=200).count()
 
-        # Endpoints
-        endpoints = (
-            EndPoint.objects.filter(target_domain__id=id).values("http_url").distinct()
-        )
-        context["endpoint_count"] = endpoints.count()
-        context["endpoint_alive_count"] = endpoints.filter(
-            http_status__exact=200
-        ).count()
+            # Endpoints
+            endpoints = (
+                EndPoint.objects.filter(target_domain__id=id)
+                .values("http_url")
+                .distinct()
+            )
+            context["endpoint_count"] = endpoints.count()
+            context["endpoint_alive_count"] = endpoints.filter(
+                http_status__exact=200
+            ).count()
 
-        # Vulnerabilities
-        vulnerabilities = Vulnerability.objects.filter(target_domain__id=id)
-        unknown_count = vulnerabilities.filter(severity=-1).count()
-        info_count = vulnerabilities.filter(severity=0).count()
-        low_count = vulnerabilities.filter(severity=1).count()
-        medium_count = vulnerabilities.filter(severity=2).count()
-        high_count = vulnerabilities.filter(severity=3).count()
-        critical_count = vulnerabilities.filter(severity=4).count()
-        ignore_info_count = sum([low_count, medium_count, high_count, critical_count])
-        context["unknown_count"] = unknown_count
-        context["info_count"] = info_count
-        context["low_count"] = low_count
-        context["medium_count"] = medium_count
-        context["high_count"] = high_count
-        context["critical_count"] = critical_count
-        context["total_vul_ignore_info_count"] = ignore_info_count
-        context["most_common_vulnerability"] = (
-            vulnerabilities.exclude(severity=0)
-            .values("name", "severity")
-            .annotate(count=Count("name"))
-            .order_by("-count")[:10]
-        )
-        context["vulnerability_count"] = vulnerabilities.count()
+            # Vulnerabilities
+            vulnerabilities = Vulnerability.objects.filter(target_domain__id=id)
+            unknown_count = vulnerabilities.filter(severity=-1).count()
+            info_count = vulnerabilities.filter(severity=0).count()
+            low_count = vulnerabilities.filter(severity=1).count()
+            medium_count = vulnerabilities.filter(severity=2).count()
+            high_count = vulnerabilities.filter(severity=3).count()
+            critical_count = vulnerabilities.filter(severity=4).count()
+            ignore_info_count = sum(
+                [low_count, medium_count, high_count, critical_count]
+            )
+            context["unknown_count"] = unknown_count
+            context["info_count"] = info_count
+            context["low_count"] = low_count
+            context["medium_count"] = medium_count
+            context["high_count"] = high_count
+            context["critical_count"] = critical_count
+            context["total_vul_ignore_info_count"] = ignore_info_count
+            context["most_common_vulnerability"] = (
+                vulnerabilities.exclude(severity=0)
+                .values("name", "severity")
+                .annotate(count=Count("name"))
+                .order_by("-count")[:10]
+            )
+            context["vulnerability_count"] = vulnerabilities.count()
 
-        # HTTP Statuses
-        context["http_status_breakdown"] = (
-            subdomains.exclude(http_status=0)
-            .values("http_status")
-            .annotate(Count("http_status"))
-        )
+            # HTTP Statuses
+            context["http_status_breakdown"] = (
+                subdomains.exclude(http_status=0)
+                .values("http_status")
+                .annotate(Count("http_status"))
+            )
 
-        # Country ISOs
-        subdomains = Subdomain.objects.filter(target_domain__id=id)
-        ip_addresses = IpAddress.objects.filter(ip_addresses__in=subdomains)
-        context["asset_countries"] = (
-            CountryISO.objects.filter(ipaddress__in=ip_addresses)
-            .annotate(count=Count("iso"))
-            .order_by("-count")
-        )
+            # Country ISOs
+            subdomains = Subdomain.objects.filter(target_domain__id=id)
+            ip_addresses = IpAddress.objects.filter(ip_addresses__in=subdomains)
+            context["asset_countries"] = (
+                CountryISO.objects.filter(ipaddress__in=ip_addresses)
+                .annotate(count=Count("iso"))
+                .order_by("-count")
+            )
 
-        # Technology Stack
-        context["technology_stack"] = subdomains.values(
-            "name",
-            "ip_addresses__address",
-            "ip_addresses__ports__number",
-            "technologies__name",
-        ).distinct()
+            # Technology Stack
+            context["technology_stack"] = subdomains.values(
+                "name",
+                "ip_addresses__address",
+                "ip_addresses__ports__number",
+                "technologies__name",
+            ).distinct()
 
-        context["vulnerability_list"] = vulnerabilities.order_by("-severity").all()[:30]
+            context["vulnerability_list"] = vulnerabilities.order_by("-severity").all()[
+                :30
+            ]
+            return Response(context)
+        except Exception as e:
+            return Response({"error": str(e)})
 
 
 class UpdateTarget(APIView):
@@ -178,7 +192,7 @@ class UpdateTarget(APIView):
                 target = Domain.objects.filter(name=name).update(**update)
                 print(target, "newio")
 
-                return Response({"status": True})
+                return Response({"status": True if target else False})
             except Exception as e:
                 return Response({"error": str(e)})
         except Exception as e:

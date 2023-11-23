@@ -82,6 +82,7 @@ def theta_scan(num):
 
 from django.contrib.humanize.templatetags import humanize
 
+def
 
 class Scans(APIView):
     def get(self, request):
@@ -91,7 +92,7 @@ class Scans(APIView):
                 ScanHistory.objects.filter(domain__project__slug=slug)
                 .order_by("-start_scan_date")
                 .annotate(status=theta_scan("scan_status"))
-                .annotate(last_scan=humanize.naturaltime("start_scan_date"))
+                .annotate(last_scan="start_scan_date"|humanize.naturaltime("start_scan_date"))
                 .values(
                     "domain__id",
                     "domain__name",

@@ -132,6 +132,7 @@ class Summary(APIView):
     def get(self, request):
         try:
             id = request.query_params.get("id")
+            print(id)
             context = {}
 
             # Domain
@@ -218,6 +219,7 @@ class Summary(APIView):
             context["vulnerability_list"] = vulnerabilities.order_by("-severity").all()[
                 :30
             ]
+            print(context,"ctx")
             return Response(context)
         except Exception as e:
             print(e, "as")

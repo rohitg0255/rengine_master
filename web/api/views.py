@@ -598,7 +598,8 @@ class SettingsAPi(APIView):
                 }
             )
         except Exception as e:
-            return Response({"error": e})
+            print(e)
+            return Response({"error": str(e)})
 
     def post(self, request):
         try:

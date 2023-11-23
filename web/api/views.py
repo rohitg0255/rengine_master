@@ -69,8 +69,10 @@ class Scans(APIView):
     def get(self, request):
         try:
             slug = request.query_params.get("slug")
-            host = ScanHistory.objects.filter(domain__project__slug=slug).order_by(
-                "-start_scan_date"
+            host = (
+                ScanHistory.objects.filter(domain__project__slug=slug)
+                .order_by("-start_scan_date")
+                .values()
             )
             return Response({"host": host})
         except Exception as e:

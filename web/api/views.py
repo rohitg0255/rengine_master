@@ -1548,23 +1548,23 @@ class CreateProjectApi(APIView):
             notification = Notification()
             notification.save()
 
-            OpenAiAPIKey = OpenAiAPIKey()
-            OpenAiAPIKey.save()
+            openAiAPIKey = OpenAiAPIKey()
+            openAiAPIKey.save()
 
-            NetlasAPIKey = NetlasAPIKey()
-            NetlasAPIKey.save()
+            netlasAPIKey = NetlasAPIKey()
+            netlasAPIKey.save()
 
-            Proxy = Proxy()
-            Proxy.save()
+            proxy = Proxy()
+            proxy.save()
 
             project = Project.objects.create(
                 name=project_name,
                 slug=slug,
                 insert_date=insert_date,
                 notification=notification,
-                OpenAiAPIKey=OpenAiAPIKey,
-                NetlasAPIKey=NetlasAPIKey,
-                Proxy=Proxy,
+                OpenAiAPIKey=openAiAPIKey,
+                NetlasAPIKey=netlasAPIKey,
+                Proxy=proxy,
             )
             response = {"status": True, "project_name": project_name}
             return Response(response)

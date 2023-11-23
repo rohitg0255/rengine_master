@@ -613,7 +613,7 @@ class SettingsAPi(APIView):
                 update = {}
                 openaikey = data.get("openaikey", None)
                 if openaikey != None:
-                    update["openaikey"] = openaikey
+                    update["key"] = openaikey
 
                     try:
                         OpenAiAPIKeylist = list(
@@ -634,7 +634,7 @@ class SettingsAPi(APIView):
                 update = {}
                 netlaskey = data.get("netlaskey", None)
                 if netlaskey != None:
-                    update["netlaskey"] = netlaskey
+                    update["key"] = netlaskey
 
                     try:
                         NetlasAPIKeylist = list(

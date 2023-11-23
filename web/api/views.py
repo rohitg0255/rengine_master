@@ -74,6 +74,7 @@ class Scans(APIView):
                 .order_by("-start_scan_date")
                 .values()
             )
+            print(host, "ss")
             return Response({"host": host})
         except Exception as e:
             return Response({"error": str(e)})

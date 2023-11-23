@@ -115,11 +115,11 @@ class Scans(APIView):
             for point in host:
                 values.append(
                     {
-                        "id": point.domain__id,
-                        "name": point.domain__name,
-                        "engine": point.scan_type__engine_name,
-                        "last_scan": naturalT(point.start_scan_date),
-                        "scan_status": theta_scan(point.scan_status),
+                        "id": point["domain__id"],
+                        "name": point["domain__name"],
+                        "engine": point["scan_type__engine_name"],
+                        "last_scan": naturalT(point["start_scan_date"]),
+                        "scan_status": theta_scan(point["scan_status"]),
                     }
                 )
             print(values, "ss")

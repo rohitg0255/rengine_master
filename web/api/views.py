@@ -164,7 +164,7 @@ class UpdateTarget(APIView):
             req = self.request
             data = req.data
             try:
-                name = data["name"]
+                id = data["id"]
                 h1_team_handle = data.get("h1_team_handle", None)
                 description = data.get("description", None)
 
@@ -175,7 +175,7 @@ class UpdateTarget(APIView):
                 if description != None:
                     update["description"] = description
 
-                target = Domain.objects.filter(name=name).update(**update)
+                target = Domain.objects.filter(id=id).update(**update)
                 print(target, "newio")
 
                 return Response({"status": True})
@@ -581,6 +581,7 @@ class logoutview(APIView):
 
 class SettingsAPi(APIView):
     def get(self, request):
+        print(1)
         try:
             project = request.query_params.get("project")
             proj_obj = Project.objects.select_related(

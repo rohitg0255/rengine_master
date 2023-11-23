@@ -164,7 +164,7 @@ class UpdateTarget(APIView):
             req = self.request
             data = req.data
             try:
-                id = data["id"]
+                name = data["name"]
                 h1_team_handle = data.get("h1_team_handle", None)
                 description = data.get("description", None)
 
@@ -175,7 +175,7 @@ class UpdateTarget(APIView):
                 if description != None:
                     update["description"] = description
 
-                target = Domain.objects.filter(id=id).update(**update)
+                target = Domain.objects.filter(name=name).update(**update)
                 print(target, "newio")
 
                 return Response({"status": True})

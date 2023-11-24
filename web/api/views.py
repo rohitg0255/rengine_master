@@ -128,6 +128,9 @@ class Scans(APIView):
             return Response({"error": str(e)})
 
 
+from django.forms.models import model_to_dict
+
+
 class Summary(APIView):
     def get(self, request):
         try:
@@ -137,7 +140,7 @@ class Summary(APIView):
 
             # Domain
             target = get_object_or_404(Domain, id=id)
-            context["target"] = target
+            context["target"] = model_to_dict(target)
 
             # Scan History
             scan = ScanHistory.objects.filter(domain__id=id)

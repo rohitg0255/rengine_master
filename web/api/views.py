@@ -141,7 +141,7 @@ class Summary(APIView):
 
             # Scan History
             scan = ScanHistory.objects.filter(domain__id=id)
-            context["recent_scans"] = scan.values().order_by("-start_scan_date")[:4]
+            context["recent_scans"] = scan.order_by("-start_scan_date")[:4]
             context["scan_count"] = scan.count()
             last_week = timezone.now() - timedelta(days=7)
             context["this_week_scan_count"] = scan.filter(

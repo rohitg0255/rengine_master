@@ -141,7 +141,9 @@ class Summary(APIView):
 
             # Scan History
             scan = ScanHistory.objects.filter(domain__id=id)
-            context["recent_scans"] = scan.order_by("-start_scan_date").values()[:4]
+            context["recent_scans"] = list(
+                scan.values().order_by("-start_scan_date")[:4]
+            )
             context["scan_count"] = scan.count()
             last_week = timezone.now() - timedelta(days=7)
             context["this_week_scan_count"] = scan.filter(
@@ -184,17 +186,16 @@ class Summary(APIView):
             context["high_count"] = high_count
             context["critical_count"] = critical_count
             context["total_vul_ignore_info_count"] = ignore_info_count
-            context["most_common_vulnerability"] = (
+            context["most_common_vulnerability"] = list(
                 vulnerabilities.exclude(severity=0)
                 .values("name", "severity")
                 .annotate(count=Count("name"))
-                .order_by("-count")
-                .values()[:10]
+                .order_by("-count")[:10]
             )
             context["vulnerability_count"] = vulnerabilities.count()
 
             # HTTP Statuses
-            context["http_status_breakdown"] = (
+            context["http_status_breakdown"] = list(
                 subdomains.exclude(http_status=0)
                 .values("http_status")
                 .annotate(Count("http_status"))
@@ -203,7 +204,7 @@ class Summary(APIView):
             # Country ISOs
             subdomains = Subdomain.objects.filter(target_domain__id=id)
             ip_addresses = IpAddress.objects.filter(ip_addresses__in=subdomains)
-            context["asset_countries"] = (
+            context["asset_countries"] = list(
                 CountryISO.objects.filter(ipaddress__in=ip_addresses)
                 .annotate(count=Count("iso"))
                 .values()
@@ -211,14 +212,16 @@ class Summary(APIView):
             )
 
             # Technology Stack
-            context["technology_stack"] = subdomains.values(
-                "name",
-                "ip_addresses__address",
-                "ip_addresses__ports__number",
-                "technologies__name",
-            ).distinct()
+            context["technology_stack"] = list(
+                subdomains.values(
+                    "name",
+                    "ip_addresses__address",
+                    "ip_addresses__ports__number",
+                    "technologies__name",
+                ).distinct()
+            )
 
-            context["vulnerability_list"] = (
+            context["vulnerability_list"] = list(
                 vulnerabilities.order_by("-severity").all().values()[:30]
             )
             print(context, "ctx")

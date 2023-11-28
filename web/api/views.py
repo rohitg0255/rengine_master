@@ -681,73 +681,78 @@ class SettingsAPi(APIView):
         try:
             req = self.request
             data = req.data
-            context = {}
+            context = {""}
 
             project = req.query_params.get("project")
-            select = data["select"]
-            if "OpenAiAPIKey" in select:
+            openaikey = data.get("openaikey", None)
+            netlaskey = data.get("netlaskey", None) 
+            use_proxy = data.get("use_proxy", None)
+            proxies = data.get("proxies", None)
+
+            # select = data["select"]
+            # if "openaikey" in select:
+            #     openaikey = data.get("openaikey", None)
+            if openaikey != None:
                 update = {}
-                openaikey = data.get("openaikey", None)
-                if openaikey != None:
-                    update["key"] = openaikey
+                update["key"] = openaikey
 
-                    try:
-                        OpenAiAPIKeylist = list(
-                            Project.objects.filter(name=project).values_list(
-                                "OpenAiAPIKey__id", flat=True
-                            )
+                try:
+                    OpenAiAPIKeylist = list(
+                        Project.objects.filter(name=project).values_list(
+                            "OpenAiAPIKey__id", flat=True
                         )
-                        openAiAPIKey = OpenAiAPIKey.objects.filter(
-                            id=OpenAiAPIKeylist[0]
-                        ).update(**update)
-                        print(openAiAPIKey, "newio")
+                    )
+                    openAiAPIKey = OpenAiAPIKey.objects.filter(
+                        id=OpenAiAPIKeylist[0]
+                    ).update(**update)
+                    print(openAiAPIKey, "newio")
 
-                        context["status"] = True
-                    except Exception as e:
-                        context["error"] = str(e)
+                    context["status"] = True
+                except Exception as e:
+                    context["error"] = str(e)
 
-            if "NetlasAPIKey" in select:
+            # if "netlaskey" in select:
+            #     netlaskey = data.get("netlaskey", None)
+            if netlaskey != None:
                 update = {}
-                netlaskey = data.get("netlaskey", None)
-                if netlaskey != None:
-                    update["key"] = netlaskey
+                update["key"] = netlaskey
 
-                    try:
-                        NetlasAPIKeylist = list(
-                            Project.objects.filter(name=project).values_list(
-                                "NetlasAPIKey__id", flat=True
-                            )
+                try:
+                    NetlasAPIKeylist = list(
+                        Project.objects.filter(name=project).values_list(
+                            "NetlasAPIKey__id", flat=True
                         )
-                        netlasAPIKey = NetlasAPIKey.objects.filter(
-                            id=NetlasAPIKeylist[0]
-                        ).update(**update)
-                        print(netlasAPIKey, "newio")
+                    )
+                    netlasAPIKey = NetlasAPIKey.objects.filter(
+                        id=NetlasAPIKeylist[0]
+                    ).update(**update)
+                    print(netlasAPIKey, "newio")
 
-                        context["status"] = True
-                    except Exception as e:
-                        context["error"] = str(e)
+                    context["status"] = True
+                except Exception as e:
+                    context["error"] = str(e)
 
-            if "Proxy" in select:
-                update = {}
-                use_proxy = data.get("use_proxy", None)
-                if use_proxy != None:
-                    update["use_proxy"] = use_proxy
-                proxies = data.get("proxies", None)
-                if proxies != None:
-                    update["proxies"] = proxies
-                if use_proxy or proxies:
-                    try:
-                        Proxylist = list(
-                            Project.objects.filter(name=project).values_list(
-                                "Proxy__id", flat=True
-                            )
+            # if "proxy" in select:
+            #     use_proxy = data.get("use_proxy", None)
+            #     proxies = data.get("proxies", None)
+            update = {}
+            if use_proxy != None:
+                update["use_proxy"] = use_proxy
+            if proxies != None:
+                update["proxies"] = proxies
+            if use_proxy or proxies:
+                try:
+                    Proxylist = list(
+                        Project.objects.filter(name=project).values_list(
+                            "Proxy__id", flat=True
                         )
-                        proxy = Proxy.objects.filter(id=Proxylist[0]).update(**update)
-                        print(proxy, "newio")
+                    )
+                    proxy = Proxy.objects.filter(id=Proxylist[0]).update(**update)
+                    print(proxy, "newio")
 
-                        context["status"] = True
-                    except Exception as e:
-                        context["error"] = str(e)
+                    context["status"] = True
+                except Exception as e:
+                    context["error"] = str(e)
             return Response(context)
         except Exception as e:
             context["error"] = str(e)

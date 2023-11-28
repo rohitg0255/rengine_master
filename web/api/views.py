@@ -681,17 +681,14 @@ class SettingsAPi(APIView):
         try:
             req = self.request
             data = req.data
-            context = {""}
+            context = {}
 
             project = req.query_params.get("project")
             openaikey = data.get("openaikey", None)
-            netlaskey = data.get("netlaskey", None) 
+            netlaskey = data.get("netlaskey", None)
             use_proxy = data.get("use_proxy", None)
             proxies = data.get("proxies", None)
 
-            # select = data["select"]
-            # if "openaikey" in select:
-            #     openaikey = data.get("openaikey", None)
             if openaikey != None:
                 update = {}
                 update["key"] = openaikey
@@ -711,8 +708,6 @@ class SettingsAPi(APIView):
                 except Exception as e:
                     context["error"] = str(e)
 
-            # if "netlaskey" in select:
-            #     netlaskey = data.get("netlaskey", None)
             if netlaskey != None:
                 update = {}
                 update["key"] = netlaskey
@@ -732,9 +727,6 @@ class SettingsAPi(APIView):
                 except Exception as e:
                     context["error"] = str(e)
 
-            # if "proxy" in select:
-            #     use_proxy = data.get("use_proxy", None)
-            #     proxies = data.get("proxies", None)
             update = {}
             if use_proxy != None:
                 update["use_proxy"] = use_proxy

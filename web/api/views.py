@@ -227,7 +227,7 @@ class Summary(APIView):
             context["vulnerability_list"] = list(
                 vulnerabilities.order_by("-severity").all().values()[:30]
             )
-            print(context, "ctx")
+            # print(context, "ctx")
             return Response(context)
         except Exception as e:
             print(e, "as")
@@ -285,7 +285,7 @@ class AddTarget(APIView):
             description = data.get("description")
             org_id = data.get("org_id")
 
-            project = Project.objects.get(id=org_id)
+            project = Project.objects.get(name=org_id)
 
             added_target_count = 0
             multiple_targets = data.get("addTargets")
@@ -402,7 +402,7 @@ class AddTarget(APIView):
             if added_target_count == 0:
                 context[
                     "desc"
-                ] = f"Oops! Could not import any targets, either targets already exists or is not a valid target."
+                ] = f"Could not import any targets, either targets already exists or is not a valid target."
                 return Response(context)
 
             # Targets added successfully, redirect to targets list

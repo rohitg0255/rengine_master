@@ -758,7 +758,7 @@ class NotificationAPi(APIView):
     def get(self, request):
         try:
             project = request.query_params.get("project")
-            proj_obj = Project.objects.select_related("notification").get(id=project)
+            proj_obj = Project.objects.select_related("notification").get(name=project)
             print(
                 proj_obj.notification.send_to_slack,
                 proj_obj.notification.send_to_telegram,

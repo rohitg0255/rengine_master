@@ -873,7 +873,7 @@ class Dashboard(APIView):
         print(data)
         try:
             try:
-                domain_ = Domain.objects.filter(project_name=orgId)
+                domain_ = Domain.objects.filter(project__name=orgId)
                 p = (
                     domain_.annotate(month=TruncMonth("subdomain__discovered_date"))
                     .values("month")

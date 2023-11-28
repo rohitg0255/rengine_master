@@ -791,6 +791,7 @@ class NotificationAPi(APIView):
                 "send_subdomain_changes_notif", None
             )
             send_scan_output_file = data.get("send_scan_output_file", None)
+            send_scan_tracebacks = data.get("send_scan_tracebacks", None)
 
             update = {}
 
@@ -818,10 +819,12 @@ class NotificationAPi(APIView):
                 update["send_subdomain_changes_notif"] = send_subdomain_changes_notif
             if send_scan_output_file != None:
                 update["send_scan_output_file"] = send_scan_output_file
+            if send_scan_tracebacks != None:
+                update["send_scan_tracebacks"] = send_scan_tracebacks
             print(update, "gee")
             try:
                 notification = list(
-                    Project.objects.filter(id=project).values_list(
+                    Project.objects.filter(name=project).values_list(
                         "notification__id", flat=True
                     )
                 )

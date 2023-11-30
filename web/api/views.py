@@ -112,14 +112,15 @@ class Scans(APIView):
                 )
             )
             print(host, "dss")
-            for point in host:
+            for point in range(len(host)):
                 values.append(
                     {
-                        "id": point["domain__id"],
-                        "name": point["domain__name"],
-                        "engine": point["scan_type__engine_name"],
-                        "last_scan": naturalT(point["start_scan_date"]),
-                        "scan_status": theta_scan(point["scan_status"]),
+                        "id": point,
+                        "domain": host[point]["domain__id"],
+                        "name": host[point]["domain__name"],
+                        "engine": host[point]["scan_type__engine_name"],
+                        "last_scan": naturalT(host[point]["start_scan_date"]),
+                        "scan_status": theta_scan(host[point]["scan_status"]),
                     }
                 )
             print(values, "ss")
@@ -1303,14 +1304,15 @@ class ScheduleStartScan(APIView):
             req = self.request
             data = req.data
             list_of_domains = data.get("listOfDomainId")
+            engine_type = data["scanMode"]  # imp
+            import_subdomain = data.get("importSubdomainTextArea")
+            out_of_scope_subdomain = data.get("outOfScopeSubdomainTextarea")
+            paths = data.get("filterPath")
+
             host_id = data.get("domainId")
             is_schedule = data.get("schedule")
             project = data.get("project")
-            import_subdomain = data.get("importSubdomainTextArea")
-            out_of_scope_subdomain = data.get("outOfScopeSubdomainTextarea")
-            engine_type = data["scanMode"]  # imp
             scheduled_mode = data.get("scheduledMode")
-            paths = data.get("filterPath")
 
             print(
                 list_of_domains,

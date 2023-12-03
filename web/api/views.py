@@ -143,9 +143,7 @@ class Summary(APIView):
             # target = get_object_or_404(Domain, id=id)
             target = Domain.objects.get(id=id)
             context["target"] = model_to_dict(target)
-            domain_info = (
-                DomainInfo.objects.prefetch_related("registrar").filter(id=1).values()
-            )
+            domain_info = DomainInfo.objects.prefetch_related("registrar").get(id=1)
 
             # context["domain_info"] = model_to_dict(domain_info)
             links = [rel.get_accessor_name() for rel in domain_info._meta.get_fields()]

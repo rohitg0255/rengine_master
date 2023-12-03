@@ -1908,7 +1908,7 @@ class FetchMostVulnerable(APIView):
         target_id = data.get("target_id")
         limit = data.get("limit", 20)
         is_ignore_info = data.get("ignore_info", False)
-
+        print(project_slug, scan_history_id, target_id, limit, is_ignore_info, "dsf")
         response = {}
         response["status"] = False
 

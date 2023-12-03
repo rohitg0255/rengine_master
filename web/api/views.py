@@ -146,7 +146,7 @@ class Summary(APIView):
             domain_info = DomainInfo.objects.prefetch_related("registrar").get(id=1)
 
             # context["domain_info"] = model_to_dict(domain_info)
-            links = [rel.get_accessor_name() for rel in domain_info._meta.get_fields()]
+            links = [rel.get_accessor_name() for rel in domain_info._meta.get_fields() if rel.get_accessor_name() else None]
             print(domain_info, links, target, "dsoo")
 
             # try:

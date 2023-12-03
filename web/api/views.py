@@ -143,6 +143,8 @@ class Summary(APIView):
             # target = get_object_or_404(Domain, id=id)
             target = Domain.objects.prefetch_related("domain_info").get(id=id)
             context["target"] = model_to_dict(target)
+            domain_info = DomainInfo.object.get(id=target.domain_info)
+            context["domain_info"] = model_to_dict(domain_info)
             # try:
             #     context["domain_info"] = target.domain_info
             #     print(target.domain_info, "dsoo")

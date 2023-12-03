@@ -152,7 +152,9 @@ class Summary(APIView):
             context["registrar"] = model_to_dict(registrar)
             context["registrant"] = model_to_dict(registrant)
 
-            print(domain_info, registrar, registrant, "dsoo")
+            print(target.domain_info.id,
+domain_info.registrar.id,
+domain_info.registrant.id, "dsoo")
 
             # try:
             #     context["domain_info"] = target.domain_info

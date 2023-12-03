@@ -148,7 +148,7 @@ class Summary(APIView):
             )
 
             # context["domain_info"] = model_to_dict(domain_info)
-            links = [rel.get_accessor_name() for rel in a._meta.get_fields()]
+            links = [rel.get_accessor_name() for rel in domain_info._meta.get_fields()]
             print(domain_info, links, target, "dsoo")
 
             # try:

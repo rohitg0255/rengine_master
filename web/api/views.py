@@ -143,7 +143,7 @@ class Summary(APIView):
             # target = get_object_or_404(Domain, id=id)
             target = Domain.objects.get(id=id)
             context["target"] = model_to_dict(target)
-            domain_info = DomainInfo.objects.get(id=1)
+            domain_info = DomainInfo.objects.get(id=1).values()
             # context["domain_info"] = model_to_dict(domain_info)
             print(domain_info, "dsoo")
 

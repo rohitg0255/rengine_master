@@ -145,10 +145,10 @@ class Summary(APIView):
             context["target"] = model_to_dict(target)
             domain_info = DomainInfo.objects.get(id=target.domain_info.id)
             context["domain_info"] = model_to_dict(domain_info)
+            print(domain_info, "dsoo")
 
             # try:
             #     context["domain_info"] = target.domain_info
-            #     print(target.domain_info, "dsoo")
             # except Exception as e:
             #     print(e, "so")
             # Scan History

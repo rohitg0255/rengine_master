@@ -143,15 +143,20 @@ class Summary(APIView):
             # target = get_object_or_404(Domain, id=id)
             target = Domain.objects.get(id=id)
             context["target"] = model_to_dict(target)
-            domain_info = DomainInfo.objects.prefetch_related("registrar").get(id=1)
 
-            # context["domain_info"] = model_to_dict(domain_info)
-            links = [
-                rel.get_accessor_name()
-                for rel in domain_info._meta.get_fields()
-                if rel.get_accessor_name()
-            ]
-            print(domain_info, links, target, "dsoo")
+            domain_info = DomainInfo.objects.filter(id=target.domain_info.id).values()
+            registrar = DomainInfo.objects.filter(id=target.registrar.id).values()
+            registrant = DomainInfo.objects.filter(id=target.registrant.id).values()
+            admin = DomainInfo.objects.filter(id=target.admin.id).values()
+            tech = DomainInfo.objects.filter(id=target.tech.id).values()
+
+            context["domain_info"] = (domain_info)
+            context["registrar"] = (registrar)
+            context["registrant"] = (registrant)
+            context["admin"] = (admin)
+            context["tech"] = (tech)
+
+            # print(domain_info, links, target, "dsoo")
 
             # try:
             #     context["domain_info"] = target.domain_info

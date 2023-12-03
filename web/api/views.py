@@ -144,9 +144,9 @@ class Summary(APIView):
             target = Domain.objects.get(id=id)
             context["target"] = model_to_dict(target)
 
-            domain_info = DomainInfo.objects.filter(id=target.domain_info.id)
-            registrar = Registrar.objects.filter(id=domain_info.registrar.id)
-            registrant = DomainRegistration.objects.filter(id=domain_info.registrant.id)
+            domain_info = DomainInfo.objects.get(id=target.domain_info.id)
+            registrar = Registrar.objects.get(id=domain_info.registrar.id)
+            registrant = DomainRegistration.objects.get(id=domain_info.registrant.id)
 
             context["domain_info"] = domain_info.values()
             context["registrar"] = registrar.values()

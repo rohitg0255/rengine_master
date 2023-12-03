@@ -140,7 +140,8 @@ class Summary(APIView):
             context = {}
 
             # Domain
-            target = get_object_or_404(Domain, id=id)
+            # target = get_object_or_404(Domain, id=id)
+            target = Domain.objects.select_related().get(id=id)
             context["target"] = model_to_dict(target)
 
             # Scan History

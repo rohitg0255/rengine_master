@@ -140,19 +140,31 @@ class Summary(APIView):
             context = {}
 
             # Domain
-            # target = get_object_or_404(Domain, id=id)
-            target = Domain.objects.get(id=id)
+            target = get_object_or_404(Domain, id=id)
+            # target = Domain.objects.filter(id=id).values()
             context["target"] = model_to_dict(target)
 
-            domain_info = DomainInfo.objects.get(id=target.domain_info.id)
-            registrar = Registrar.objects.get(id=domain_info.registrar.id)
-            registrant = DomainRegistration.objects.get(id=domain_info.registrant.id)
+            did = target.domain_info.id
+            domain_info = DomainInfo.objects.filter(id=did).values()
 
-            context["domain_info"] = model_to_dict(domain_info)
-            context["registrar"] = model_to_dict(registrar)
-            context["registrant"] = model_to_dict(registrant)
+            rid = domain_info[0]["registrar_id"]
+            registrar = Registrar.objects.filter(id=rid).values()
 
-            print(domain_info, registrar, registrant, "dsoo")
+            tid = domain_info[0]["registrant_id"]
+            registrant = DomainRegistration.objects.filter(id=tid).values()
+
+            nameservers = target.domain_info.name_servers.values()
+            historical_ips = target.domain_info.historical_ips.values()
+            dns_records = target.domain_info.dns_records.values()
+
+            context["domain_info"] = domain_info
+            context["registrar"] = registrar
+            context["registrant"] = registrant
+
+            context["nameservers"] = nameservers
+            context["historical_ips"] = historical_ips
+            context["dns_records"] = dns_records
+            print(nameservers, "ds", historical_ips, "dssd", dns_records, "dsoo")
 
             # try:
             #     context["domain_info"] = target.domain_info

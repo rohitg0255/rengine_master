@@ -145,16 +145,16 @@ class Summary(APIView):
             context["target"] = model_to_dict(target)
 
             domain_info = DomainInfo.objects.filter(id=target.domain_info.id).values()
-            registrar = Registrar.objects.filter(id=domain_info.registrar_id).values()
+            registrar = Registrar.objects.filter(id=domain_info.registrar.id).values()
             registrant = DomainRegistration.objects.filter(
-                id=domain_info.registrant_id
+                id=domain_info.registrant.id
             ).values()
 
             context["domain_info"] = domain_info
             context["registrar"] = registrar
             context["registrant"] = registrant
 
-            # print(domain_info, links, target, "dsoo")
+            print(domain_info, target, "dsoo")
 
             # try:
             #     context["domain_info"] = target.domain_info

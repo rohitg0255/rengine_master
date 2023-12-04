@@ -264,12 +264,22 @@ class Summary(APIView):
 
 
 class UpdateTarget(APIView):
+    def get(self, request):
+        try:
+            req = self.request
+            data = req.data
+            id = data["id"]
+            target = Domain.objects.filter(id=id).values()
+            return Response({"target": target})
+        except Exception as e:
+            return Response({"error": str(e)})
+
     def post(self, request):
         try:
             req = self.request
             data = req.data
             try:
-                name = data["name"]
+                id = data["id"]
                 h1_team_handle = data.get("h1_team_handle", None)
                 description = data.get("description", None)
 
@@ -280,7 +290,7 @@ class UpdateTarget(APIView):
                 if description != None:
                     update["description"] = description
 
-                target = Domain.objects.filter(name=name).update(**update)
+                target = Domain.objects.filter(id=id).update(**update)
                 print(target, "newio")
 
                 return Response({"status": True if target else False})

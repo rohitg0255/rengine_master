@@ -104,6 +104,7 @@ class Scans(APIView):
                 # .annotate(status=theta_scan("scan_status"))
                 # .annotate(last_scan=naturalT("start_scan_date"))
                 .values(
+                    "id",
                     "domain__id",
                     "domain__name",
                     "scan_type__engine_name",
@@ -115,7 +116,7 @@ class Scans(APIView):
             for point in range(len(host)):
                 values.append(
                     {
-                        "id": point,
+                        "id": host[point]["id"],
                         "domain": host[point]["domain__id"],
                         "name": host[point]["domain__name"],
                         "engine": host[point]["scan_type__engine_name"],

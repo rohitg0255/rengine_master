@@ -281,6 +281,7 @@ class UpdateTarget(APIView):
                 id = data["id"]
                 h1_team_handle = data.get("h1_team_handle", None)
                 description = data.get("description", None)
+                ip_address_cidr = data.get("ip_address_cidr", None)
 
                 update = {}
 
@@ -288,6 +289,8 @@ class UpdateTarget(APIView):
                     update["h1_team_handle"] = h1_team_handle
                 if description != None:
                     update["description"] = description
+                if ip_address_cidr != None:
+                    update["ip_address_cidr"] = ip_address_cidr
 
                 target = Domain.objects.filter(id=id).update(**update)
                 print(target, "newio")

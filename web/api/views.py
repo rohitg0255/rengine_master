@@ -143,8 +143,9 @@ class Summary(APIView):
             # Domain
             target = get_object_or_404(Domain, id=id)
             # target = Domain.objects.filter(id=id).values()
-            context["target"] = model_to_dict(target)
-
+            targetDetail = model_to_dict(target)
+            targetDetail["last_scan"] = naturaltime(target.start_scan_date)
+            context["target"] = targetDetail
             did = target.domain_info.id
             domain_info = DomainInfo.objects.filter(id=did).values()
 

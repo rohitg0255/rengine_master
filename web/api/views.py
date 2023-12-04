@@ -267,9 +267,8 @@ class UpdateTarget(APIView):
     def get(self, request):
         try:
             req = self.request
-            data = req.data
-            id = data["id"]
-            target = Domain.objects.filter(id=id).values()
+            id = request.query_params.get("id")
+            target = Domain.objects.filter(id=id).values()[0]
             return Response({"target": target})
         except Exception as e:
             return Response({"error": str(e)})

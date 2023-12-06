@@ -121,6 +121,7 @@ class Scans(APIView):
                         "name": host[point]["domain__name"],
                         "engine": host[point]["scan_type__engine_name"],
                         "last_scan": naturalT(host[point]["start_scan_date"]),
+                        "scan_state": host[point]["scan_status"],
                         "scan_status": theta_scan(host[point]["scan_status"]),
                     }
                 )
@@ -144,6 +145,9 @@ class Summary(APIView):
             target = get_object_or_404(Domain, id=id)
             # target = Domain.objects.filter(id=id).values()
             targetDetail = model_to_dict(target)
+            targetDetail["created"] = naturaltime(target.created)
+            targetDetail["updated"] = naturaltime(target.updated)
+            targetDetail["expires"] = naturaltime(target.expires)
             targetDetail["last_scan"] = naturaltime(target.start_scan_date)
             context["target"] = targetDetail
             did = target.domain_info.id

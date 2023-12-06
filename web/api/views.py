@@ -1941,7 +1941,7 @@ class FetchMostVulnerable(APIView):
 
         if scan_history_id:
             subdomain_query = subdomains.filter(scan_history__id=scan_history_id)
-            if is_ignore_info:
+            if is_ignore_info == True:
                 most_vulnerable_subdomains = (
                     subdomain_query.annotate(
                         vuln_count=Count(
@@ -1967,7 +1967,7 @@ class FetchMostVulnerable(APIView):
         elif target_id:
             print("x")
             subdomain_query = subdomains.filter(target_domain__id=target_id)
-            if is_ignore_info:
+            if is_ignore_info == True:
                 print("y")
                 most_vulnerable_subdomains = (
                     subdomain_query.annotate(
@@ -1992,7 +1992,7 @@ class FetchMostVulnerable(APIView):
                     most_vulnerable_subdomains, many=True
                 ).data
         else:
-            if is_ignore_info:
+            if is_ignore_info == True:
                 most_vulnerable_targets = (
                     domains.annotate(
                         vuln_count=Count(

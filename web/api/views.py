@@ -1965,8 +1965,10 @@ class FetchMostVulnerable(APIView):
                     ).data
 
         elif target_id:
+            print("x")
             subdomain_query = subdomains.filter(target_domain__id=target_id)
             if is_ignore_info:
+                print("y")
                 most_vulnerable_subdomains = (
                     subdomain_query.annotate(
                         vuln_count=Count(
@@ -1984,6 +1986,7 @@ class FetchMostVulnerable(APIView):
                 )
 
             if most_vulnerable_subdomains:
+                print("z")
                 response["status"] = True
                 response["result"] = SubdomainSerializer(
                     most_vulnerable_subdomains, many=True

@@ -144,12 +144,12 @@ class Summary(APIView):
             # Domain
             target = get_object_or_404(Domain, id=id)
             # target = Domain.objects.filter(id=id).values()
-            # targetDetail = model_to_dict(target)
+            targetDetail = model_to_dict(target)
             print(target, "daa")
-            targetDetail["created"] = naturaltime(target.created)
-            targetDetail["updated"] = naturaltime(target.updated)
-            targetDetail["expires"] = naturaltime(target.expires)
-            targetDetail["last_scan"] = naturaltime(target.start_scan_date)
+            targetDetail["created"] = naturalT(target.domain_info.created)
+            targetDetail["updated"] = naturalT(target.domain_info.updated)
+            targetDetail["expires"] = naturalT(target.domain_info.expires)
+            targetDetail["last_scan"] = naturalT(target.start_scan_date)
             context["target"] = targetDetail
             did = target.domain_info.id
             domain_info = DomainInfo.objects.filter(id=did).values()

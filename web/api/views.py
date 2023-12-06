@@ -121,7 +121,7 @@ class Scans(APIView):
                         "name": host[point]["domain__name"],
                         "engine": host[point]["scan_type__engine_name"],
                         "last_scan": naturalT(host[point]["start_scan_date"]),
-                        "scan_state": host[point]["scan_status"],
+                        "state": host[point]["scan_status"],
                         "scan_status": theta_scan(host[point]["scan_status"]),
                     }
                 )

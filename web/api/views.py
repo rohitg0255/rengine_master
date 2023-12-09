@@ -147,31 +147,32 @@ class Summary(APIView):
             targetDetail = model_to_dict(target)
             did = target.domain_info.id
             print(did, "daa")
-            targetDetail["created"] = naturalT(target.domain_info.created)
-            targetDetail["updated"] = naturalT(target.domain_info.updated)
-            targetDetail["expires"] = naturalT(target.domain_info.expires)
-            targetDetail["last_scan"] = naturalT(target.start_scan_date)
-            context["target"] = targetDetail
-            domain_info = DomainInfo.objects.filter(id=did).values()
+            if did != None:
+                targetDetail["created"] = naturalT(target.domain_info.created)
+                targetDetail["updated"] = naturalT(target.domain_info.updated)
+                targetDetail["expires"] = naturalT(target.domain_info.expires)
+                targetDetail["last_scan"] = naturalT(target.start_scan_date)
+                context["target"] = targetDetail
+                domain_info = DomainInfo.objects.filter(id=did).values()
 
-            rid = domain_info[0]["registrar_id"]
-            registrar = Registrar.objects.filter(id=rid).values()
+                rid = domain_info[0]["registrar_id"]
+                registrar = Registrar.objects.filter(id=rid).values()
 
-            tid = domain_info[0]["registrant_id"]
-            registrant = DomainRegistration.objects.filter(id=tid).values()
+                tid = domain_info[0]["registrant_id"]
+                registrant = DomainRegistration.objects.filter(id=tid).values()
 
-            nameservers = target.domain_info.name_servers.values()
-            historical_ips = target.domain_info.historical_ips.values()
-            dns_records = target.domain_info.dns_records.values()
+                nameservers = target.domain_info.name_servers.values()
+                historical_ips = target.domain_info.historical_ips.values()
+                dns_records = target.domain_info.dns_records.values()
 
-            context["domain_info"] = domain_info
-            context["registrar"] = registrar
-            context["registrant"] = registrant
+                context["domain_info"] = domain_info
+                context["registrar"] = registrar
+                context["registrant"] = registrant
 
-            context["nameservers"] = nameservers
-            context["historical_ips"] = historical_ips
-            context["dns_records"] = dns_records
-            print(nameservers, "ds", historical_ips, "dssd", dns_records, "dsoo")
+                context["nameservers"] = nameservers
+                context["historical_ips"] = historical_ips
+                context["dns_records"] = dns_records
+                print(nameservers, "ds", historical_ips, "dssd", dns_records, "dsoo")
 
             # try:
             #     context["domain_info"] = target.domain_info

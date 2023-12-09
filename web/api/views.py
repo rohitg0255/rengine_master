@@ -145,9 +145,9 @@ class Summary(APIView):
             target = get_object_or_404(Domain, id=id)
             # target = Domain.objects.filter(id=id).values()
             targetDetail = model_to_dict(target)
-            did = target.domain_info.id
             print(did, "daa")
-            if did != None:
+            if target.domain_info != None:
+                did = target.domain_info.id
                 targetDetail["created"] = naturalT(target.domain_info.created)
                 targetDetail["updated"] = naturalT(target.domain_info.updated)
                 targetDetail["expires"] = naturalT(target.domain_info.expires)

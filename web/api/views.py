@@ -134,6 +134,86 @@ class Scans(APIView):
 from django.forms.models import model_to_dict
 
 
+class Delta(APIView):
+    def get(self, request):
+        try:
+            id = request.query_params.get("id")
+            print(id)
+            context = {}
+
+            # Domain
+            target = get_object_or_404(Domain, id=id)
+            # target = Domain.objects.filter(id=id).values()
+            targetDetail = model_to_dict(target)
+
+            # Subdomains
+            subdomains = (
+                Subdomain.objects.filter(target_domain__id=id).values("name").distinct()
+            )
+
+            # Technology Stack
+            context["technology_stack"] = list(
+                subdomains.values(
+                    "name",
+                    "ip_addresses__address",
+                    "ip_addresses__ports__number",
+                    "technologies__name",
+                ).distinct()
+            )
+
+            # change in subdomain
+            context["subdomain_delta"] = (
+                Subdomain.objects.filter(target_domain__id=id)
+                .values("scan_history", "scan_history__start_scan_date")
+                .annotate(total=Count("scan_history"))
+                .order_by("-scan_history__start_scan_date")
+            )
+
+            # change in endpoints
+            context["endpoint_delta"] = (
+                EndPoint.objects.filter(target_domain__id=1)
+                .values("scan_history", "scan_history__start_scan_date")
+                .annotate(total=Count("scan_history"))
+                .order_by("-scan_history__start_scan_date")
+            )
+            return Response(context)
+        except Exception as e:
+            print(e, "as")
+            return Response({"error": str(e)})
+
+
+class KPI(APIView):
+    def get(self, request):
+        try:
+            id = request.query_params.get("id")
+            print(id)
+            context = {}
+
+            # Domain
+            target = get_object_or_404(Domain, id=id)
+            # target = Domain.objects.filter(id=id).values()
+            targetDetail = model_to_dict(target)
+
+            vulnerabilities = Vulnerability.objects.filter(target_domain__id=id)
+            context["vulnerabilities"] = vulnerabilities.values()
+            context["vulnerability_highlight"] = list(
+                vulnerabilities.order_by("-severity").all().values()[:30]
+            )
+            # print(context, "ctx")
+            context["heatmap"] = (
+                vulnerabilities.values("name", "severity")
+                .annotate(total=Count("name"))
+                .order_by("severity")
+            )
+            endpoints = EndPoint.objects.filter(target_domain__id=id).distinct()
+            endpoints_serializer = EndpointSerializer(endpoints, many=True)
+            context["endpoints"] = endpoints_serializer.data
+            return Response(context)
+        except Exception as e:
+            print(e, "as")
+            return Response({"error": str(e)})
+
+
 class Summary(APIView):
     def get(self, request):
         try:
@@ -250,24 +330,8 @@ class Summary(APIView):
                 .order_by("-count")
             )
 
-            # Technology Stack
-            context["technology_stack"] = list(
-                subdomains.values(
-                    "name",
-                    "ip_addresses__address",
-                    "ip_addresses__ports__number",
-                    "technologies__name",
-                ).distinct()
-            )
-
             context["vulnerability_list"] = list(
                 vulnerabilities.order_by("-severity").all().values()[:30]
-            )
-            # print(context, "ctx")
-            context["heatmap"] = (
-                vulnerabilities.values("name", "severity")
-                .annotate(total=Count("name"))
-                .order_by("severity")
             )
             return Response(context)
         except Exception as e:

@@ -154,6 +154,8 @@ urlpatterns = [
     path("update/target", UpdateTarget.as_view(), name="UpdateTargetApi"),
     path("get/scans", Scans.as_view(), name="ScansApi"),
     path("get/summary", Summary.as_view(), name="SummaryApi"),
+    path("get/delta", Delta.as_view(), name="SummaryApi"),
+    path("get/kpi", KPI.as_view(), name="SummaryApi"),
     path("org_scan_status", OrgScanStatus.as_view(), name="org_scan_status"),
     path(
         "schedule_start_scan", ScheduleStartScan.as_view(), name="schedule_start_scan"

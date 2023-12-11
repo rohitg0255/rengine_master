@@ -264,7 +264,7 @@ class Summary(APIView):
                 vulnerabilities.order_by("-severity").all().values()[:30]
             )
             # print(context, "ctx")
-            heatmap = (
+            context["heatmap"] = (
                 vulnerabilities.values("name", "severity")
                 .annotate(total=Count("name"))
                 .order_by("severity")

@@ -199,6 +199,18 @@ class KPI(APIView):
             highlight = vulnerabilities.order_by("-severity").all().values()[:30]
             for vuln in highlight:
                 vuln["discovered"] = naturaltime(vuln["discovered_date"])
+                if vuln["severity"] == -1:
+                    vuln["severity"] = "unknown"
+                if vuln["severity"] == 0:
+                    vuln["severity"] = "info"
+                if vuln["severity"] == 1:
+                    vuln["severity"] = "low"
+                if vuln["severity"] == 2:
+                    vuln["severity"] = "medium"
+                if vuln["severity"] == 3:
+                    vuln["severity"] = "high"
+                if vuln["severity"] == 4:
+                    vuln["severity"] = "critical"
             # print(context, "ctx")
             context["vulnerability_highlight"] = highlight
             context["heatmap"] = (

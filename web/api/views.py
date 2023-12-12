@@ -1978,7 +1978,6 @@ class FetchMostCommonVulnerability(APIView):
                     most_common_vulnerabilities = vuln_query.annotate(
                     count=Count("name")
                     ).order_by("-count")[:limit]
-
             most_common_vulnerabilities = [vuln for vuln in most_common_vulnerabilities]
             for vuln in most_common_vulnerabilities:
                 if vuln["severity"] == -1:

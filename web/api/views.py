@@ -162,19 +162,26 @@ class Delta(APIView):
             )
 
             # change in subdomain
-            context["subdomain_delta"] = (
+            subdomain_delta = (
                 Subdomain.objects.filter(target_domain__id=id)
                 .values("scan_history", "scan_history__start_scan_date")
                 .annotate(total=Count("scan_history"))
                 .order_by("-scan_history__start_scan_date")
             )
-
+            context["subdomain_delta"] = subdomain_delta
+            context["change_in_subdomain"] = (
+                subdomain_delta[0]["total"] - subdomain_delta[1]["total"]
+            )
             # change in endpoints
-            context["endpoint_delta"] = (
+            endpoint_delta = (
                 EndPoint.objects.filter(target_domain__id=1)
                 .values("scan_history", "scan_history__start_scan_date")
                 .annotate(total=Count("scan_history"))
                 .order_by("-scan_history__start_scan_date")
+            )
+            context["endpoint_delta"] = endpoint_delta
+            context["change_in_endpoint"] = (
+                endpoint_delta[0]["total"] - endpoint_delta[1]["total"]
             )
             return Response(context)
         except Exception as e:
@@ -210,7 +217,6 @@ class KPI(APIView):
                 vulnerability["template_id"] = vuln.template_id
                 vulnerability["matcher_name"] = vuln.matcher_name
                 vulnerability["name"] = vuln.name
-                vulnerability["severity"] = vuln.severity
                 if vuln.severity == -1:
                     vulnerability["severity"] = "unknown"
                 if vuln.severity == 0:

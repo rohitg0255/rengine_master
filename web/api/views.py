@@ -369,6 +369,16 @@ class Summary(APIView):
             context["high_count"] = high_count
             context["critical_count"] = critical_count
             context["total_vul_ignore_info_count"] = ignore_info_count
+
+            context["vulnerability_breakdown"] = {
+                "unknown_count": unknown_count,
+                "info_count": info_count,
+                "low_count": low_count,
+                "medium_count": medium_count,
+                "high_count": high_count,
+                "critical_count": critical_count,
+            }
+
             context["most_common_vulnerability"] = list(
                 vulnerabilities.exclude(severity=0)
                 .values("name", "severity")

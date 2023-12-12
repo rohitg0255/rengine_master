@@ -195,6 +195,24 @@ class KPI(APIView):
             targetDetail = model_to_dict(target)
 
             vulnerabilities = Vulnerability.objects.filter(target_domain__id=id)
+            for vuln in vulnerabilities:
+                vulnerability = {}
+
+                vulnerability["tags"] = vuln.tags.values()
+                vulnerability["tags"] = vuln.tags.values()
+                vulnerability["tags"] = vuln.tags.values()
+                vulnerability["tags"] = vuln.tags.values()
+                vulnerability["tags"] = vuln.tags.values()
+                vulnerability["tags"] = vuln.tags.values()
+                vulnerability["tags"] = vuln.tags.values()
+                vulnerability["tags"] = vuln.tags.values()
+                vulnerability["tags"] = vuln.tags.values()
+                vulnerability["tags"] = vuln.tags.values()
+                vulnerability["tags"] = vuln.tags.values()
+                vulnerability["tags"] = vuln.tags.values()
+                vulnerability["tags"] = vuln.tags.values()
+                vulnerability["tags"] = vuln.tags.values()
+
             context["vulnerabilities"] = vulnerabilities.values()
             highlight = vulnerabilities.order_by("-severity").all().values()[:30]
             for vuln in highlight:
@@ -211,7 +229,6 @@ class KPI(APIView):
                     vuln["severity"] = "high"
                 if vuln["severity"] == 4:
                     vuln["severity"] = "critical"
-                vuln["tags"] = vuln.tags.values()
             # print(context, "ctx")
             context["vulnerability_highlight"] = highlight
             context["heatmap"] = (

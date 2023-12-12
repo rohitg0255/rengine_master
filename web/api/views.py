@@ -211,6 +211,18 @@ class KPI(APIView):
                 vulnerability["matcher_name"] = vuln.matcher_name
                 vulnerability["name"] = vuln.name
                 vulnerability["severity"] = vuln.severity
+                if vuln.severity == -1:
+                    vulnerability["severity"] = "unknown"
+                if vuln.severity == 0:
+                    vulnerability["severity"] = "info"
+                if vuln.severity == 1:
+                    vulnerability["severity"] = "low"
+                if vuln.severity == 2:
+                    vulnerability["severity"] = "medium"
+                if vuln.severity == 3:
+                    vulnerability["severity"] = "high"
+                if vuln.severity == 4:
+                    vulnerability["severity"] = "critical"
                 vulnerability["description"] = vuln.description
                 vulnerability["impact"] = vuln.impact
                 vulnerability["remediation"] = vuln.remediation
@@ -220,7 +232,7 @@ class KPI(APIView):
                 vulnerability["curl_command"] = vuln.curl_command
                 vulnerability["type"] = vuln.type
                 vulnerability["http_url"] = vuln.http_url
-                vulnerability["discovered_date"] = vuln.discovered_date
+                vulnerability["discovered_date"] = naturaltime(vuln.discovered_date)
                 vulnerability["open_status"] = vuln.open_status
                 vulnerability["hackerone_report_id"] = vuln.hackerone_report_id
                 vulnerability["request"] = vuln.request

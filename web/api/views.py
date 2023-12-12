@@ -197,7 +197,10 @@ class KPI(APIView):
             vulnerabilities = Vulnerability.objects.filter(target_domain__id=id)
             context["vulnerabilities"] = vulnerabilities.values()
             context["vulnerability_highlight"] = list(
-                vulnerabilities.order_by("-severity").all().values()[:30]
+                vulnerabilities.order_by("-severity")
+                .all()
+                .annotate(discovered=naturaltime("discovered_date"))
+                .values()[:30]
             )
             # print(context, "ctx")
             context["heatmap"] = (

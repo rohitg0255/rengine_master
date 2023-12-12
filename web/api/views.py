@@ -1976,7 +1976,19 @@ class FetchMostCommonVulnerability(APIView):
                     ).order_by("-count")[:limit]
 
             most_common_vulnerabilities = [vuln for vuln in most_common_vulnerabilities]
-
+            for vuln in most_common_vulnerabilities:
+                if vuln["severity"] == -1:
+                    vuln["severity"] = "unknown"
+                if vuln["severity"] == 0:
+                    vuln["severity"] = "info"
+                if vuln["severity"] == 1:
+                    vuln["severity"] = "low"
+                if vuln["severity"] == 2:
+                    vuln["severity"] = "medium"
+                if vuln["severity"] == 3:
+                    vuln["severity"] = "high"
+                if vuln["severity"] == 4:
+                    vuln["severity"] = "critical"
             if most_common_vulnerabilities:
                 response["status"] = True
                 response["result"] = most_common_vulnerabilities

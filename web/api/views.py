@@ -211,6 +211,7 @@ class KPI(APIView):
                     vuln["severity"] = "high"
                 if vuln["severity"] == 4:
                     vuln["severity"] = "critical"
+                vuln["tags"] = vuln.tags.values()
             # print(context, "ctx")
             context["vulnerability_highlight"] = highlight
             context["heatmap"] = (

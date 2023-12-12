@@ -195,25 +195,40 @@ class KPI(APIView):
             targetDetail = model_to_dict(target)
 
             vulnerabilities = Vulnerability.objects.filter(target_domain__id=id)
+            vulnerability_list = []
             for vuln in vulnerabilities:
                 vulnerability = {}
 
-                vulnerability["tags"] = vuln.tags.values()
-                vulnerability["tags"] = vuln.tags.values()
-                vulnerability["tags"] = vuln.tags.values()
-                vulnerability["tags"] = vuln.tags.values()
-                vulnerability["tags"] = vuln.tags.values()
-                vulnerability["tags"] = vuln.tags.values()
-                vulnerability["tags"] = vuln.tags.values()
-                vulnerability["tags"] = vuln.tags.values()
-                vulnerability["tags"] = vuln.tags.values()
-                vulnerability["tags"] = vuln.tags.values()
-                vulnerability["tags"] = vuln.tags.values()
-                vulnerability["tags"] = vuln.tags.values()
-                vulnerability["tags"] = vuln.tags.values()
-                vulnerability["tags"] = vuln.tags.values()
+                vulnerability["id"] = vuln.tags.values()
+                vulnerability["scan_history_id"] = vuln.scan_history_id
+                vulnerability["source"] = vuln.source
+                vulnerability["subdomain_id"] = vuln.subdomain_id
+                vulnerability["endpoint_id"] = vuln.endpoint_id
+                vulnerability["target_domain_id"] = vuln.target_domain_id
+                vulnerability["template"] = vuln.template
+                vulnerability["template_url"] = vuln.template_url
+                vulnerability["template_id"] = vuln.template_id
+                vulnerability["matcher_name"] = vuln.matcher_name
+                vulnerability["name"] = vuln.name
+                vulnerability["severity"] = vuln.severity
+                vulnerability["description"] = vuln.description
+                vulnerability["impact"] = vuln.impact
+                vulnerability["remediation"] = vuln.remediation
+                vulnerability["extracted_results"] = vuln.extracted_results
+                vulnerability["cvss_metrics"] = vuln.cvss_metrics
+                vulnerability["cvss_score"] = vuln.cvss_score
+                vulnerability["curl_command"] = vuln.curl_command
+                vulnerability["type"] = vuln.type
+                vulnerability["http_url"] = vuln.http_url
+                vulnerability["discovered_date"] = vuln.discovered_date
+                vulnerability["open_status"] = vuln.open_status
+                vulnerability["hackerone_report_id"] = vuln.hackerone_report_id
+                vulnerability["request"] = vuln.request
+                vulnerability["response"] = vuln.response
+                vulnerability["is_gpt_used"] = vuln.is_gpt_used
+                vulnerability_list.append(vulnerability)
 
-            context["vulnerabilities"] = vulnerabilities.values()
+            context["vulnerabilities"] = vulnerability_list
             highlight = vulnerabilities.order_by("-severity").all().values()[:30]
             for vuln in highlight:
                 vuln["discovered"] = naturaltime(vuln["discovered_date"])

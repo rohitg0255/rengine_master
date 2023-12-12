@@ -371,12 +371,12 @@ class Summary(APIView):
             context["total_vul_ignore_info_count"] = ignore_info_count
 
             context["vulnerability_breakdown"] = [
-                {"x":"unknown_count","y": unknown_count}
-                {"x":"info_count","y": info_count}
-                {"x":"low_count","y": low_count}
-                {"x":"medium_count","y": medium_count}
-                {"x":"high_count","y": high_count}
-                {"x":"critical_count","y": critical_count}
+                {"x": "unknown_count", "y": unknown_count},
+                {"x": "info_count", "y": info_count},
+                {"x": "low_count", "y": low_count},
+                {"x": "medium_count", "y": medium_count},
+                {"x": "high_count", "y": high_count},
+                {"x": "critical_count", "y": critical_count},
             ]
 
             context["most_common_vulnerability"] = list(

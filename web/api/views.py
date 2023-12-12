@@ -196,14 +196,11 @@ class KPI(APIView):
 
             vulnerabilities = Vulnerability.objects.filter(target_domain__id=id)
             context["vulnerabilities"] = vulnerabilities.values()
-            highlight = 
-                vulnerabilities.order_by("-severity")
-                .all()
-                .values()[:30]
+            highlight = vulnerabilities.order_by("-severity").all().values()[:30]
             for vuln in highlight:
-                vuln["discovered"]=naturaltime(vuln["discovered_date"])
+                vuln["discovered"] = naturaltime(vuln["discovered_date"])
             # print(context, "ctx")
-            context["vulnerability_highlight"]=highlight
+            context["vulnerability_highlight"] = highlight
             context["heatmap"] = (
                 vulnerabilities.values("name", "severity")
                 .annotate(total=Count("name"))
@@ -1976,7 +1973,7 @@ class FetchMostCommonVulnerability(APIView):
                     )
                 else:
                     most_common_vulnerabilities = vuln_query.annotate(
-                    count=Count("name")
+                        count=Count("name")
                     ).order_by("-count")[:limit]
             most_common_vulnerabilities = [vuln for vuln in most_common_vulnerabilities]
             for vuln in most_common_vulnerabilities:

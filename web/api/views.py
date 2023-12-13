@@ -2050,7 +2050,7 @@ class FetchMostCommonVulnerability(APIView):
 
             elif target_id:
                 vuln_query = vulnerabilities.filter(target_domain__id=target_id).values(
-                    "name", "severity"
+                    "id", "name", "severity"
                 )
                 if is_ignore_info:
                     most_common_vulnerabilities = (

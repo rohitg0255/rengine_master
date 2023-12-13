@@ -150,6 +150,33 @@ class Delta(APIView):
             subdomains = (
                 Subdomain.objects.filter(target_domain__id=id).values("name").distinct()
             )
+            # Vulnerabilities
+            vulnerabilities = Vulnerability.objects.filter(target_domain__id=id)
+            unknown_count = vulnerabilities.filter(severity=-1).count()
+            info_count = vulnerabilities.filter(severity=0).count()
+            low_count = vulnerabilities.filter(severity=1).count()
+            medium_count = vulnerabilities.filter(severity=2).count()
+            high_count = vulnerabilities.filter(severity=3).count()
+            critical_count = vulnerabilities.filter(severity=4).count()
+            ignore_info_count = sum(
+                [low_count, medium_count, high_count, critical_count]
+            )
+            context["unknown_count"] = unknown_count
+            context["info_count"] = info_count
+            context["low_count"] = low_count
+            context["medium_count"] = medium_count
+            context["high_count"] = high_count
+            context["critical_count"] = critical_count
+            context["total_vul_ignore_info_count"] = ignore_info_count
+
+            context["vulnerability_breakdown"] = [
+                {"x": "unknown_count", "y": unknown_count},
+                {"x": "info_count", "y": info_count},
+                {"x": "low_count", "y": low_count},
+                {"x": "medium_count", "y": medium_count},
+                {"x": "high_count", "y": high_count},
+                {"x": "critical_count", "y": critical_count},
+            ]
 
             # Technology Stack
             context["technology_stack"] = list(

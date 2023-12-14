@@ -98,7 +98,7 @@ class Scans(APIView):
             slug = request.query_params.get("slug")
             values = []
             host = (
-                ScanHistory.objects.filter(domain__project__slug=slug).order_by(
+                ScanHistory.objects.filter(domain__project__name=slug).order_by(
                     "-start_scan_date"
                 )
                 # .annotate(status=theta_scan("scan_status"))
@@ -1890,7 +1890,7 @@ class ListTargetsDatatableViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         slug = self.request.GET.get("slug", None)
         if slug:
-            self.queryset = self.queryset.filter(project__slug=slug)
+            self.queryset = self.queryset.filter(project__name=slug)
         return self.queryset
 
     def filter_queryset(self, qs):
@@ -2759,32 +2759,32 @@ class ScanStatus(APIView):
         slug = self.request.GET.get("project", None)
         # main tasks
         recently_completed_scans = (
-            ScanHistory.objects.filter(domain__project__slug=slug)
+            ScanHistory.objects.filter(domain__project__name=slug)
             .order_by("-start_scan_date")
             .filter(Q(scan_status=0) | Q(scan_status=2) | Q(scan_status=3))[:10]
         )
         current_scans = (
-            ScanHistory.objects.filter(domain__project__slug=slug)
+            ScanHistory.objects.filter(domain__project__name=slug)
             .order_by("-start_scan_date")
             .filter(scan_status=1)
         )
-        pending_scans = ScanHistory.objects.filter(domain__project__slug=slug).filter(
+        pending_scans = ScanHistory.objects.filter(domain__project__name=slug).filter(
             scan_status=-1
         )
 
         # subtasks
         recently_completed_tasks = (
-            SubScan.objects.filter(scan_history__domain__project__slug=slug)
+            SubScan.objects.filter(scan_history__domain__project__name=slug)
             .order_by("-start_scan_date")
             .filter(Q(status=0) | Q(status=2) | Q(status=3))[:15]
         )
         current_tasks = (
-            SubScan.objects.filter(scan_history__domain__project__slug=slug)
+            SubScan.objects.filter(scan_history__domain__project__name=slug)
             .order_by("-start_scan_date")
             .filter(status=1)
         )
         pending_tasks = SubScan.objects.filter(
-            scan_history__domain__project__slug=slug
+            scan_history__domain__project__name=slug
         ).filter(status=-1)
         response = {
             "scans": {
@@ -2990,7 +2990,7 @@ class ListTodoNotes(APIView):
         scan_id = req.query_params.get("scan_id")
         project = req.query_params.get("project")
         if project:
-            notes = notes.filter(project__slug=project)
+            notes = notes.filter(project__name=project)
         target_id = req.query_params.get("target_id")
         todo_id = req.query_params.get("todo_id")
         subdomain_id = req.query_params.get("subdomain_id")
@@ -3014,7 +3014,7 @@ class ListScanHistory(APIView):
         scan_history = ScanHistory.objects.all().order_by("-start_scan_date")
         project = req.query_params.get("project")
         if project:
-            scan_history = scan_history.filter(domain__project__slug=project)
+            scan_history = scan_history.filter(domain__project__name=project)
         scan_history = ScanHistorySerializer(scan_history, many=True)
         return Response(scan_history.data)
 
@@ -3224,7 +3224,7 @@ class ListSubdomains(APIView):
         tech = req.query_params.get("tech")
 
         subdomains = (
-            Subdomain.objects.filter(target_domain__project__slug=project)
+            Subdomain.objects.filter(target_domain__project__name=project)
             if project
             else Subdomain.objects.all()
         )
@@ -3595,7 +3595,7 @@ class SubdomainDatatableViewSet(viewsets.ModelViewSet):
         name = req.query_params.get("name")
         project = req.query_params.get("project")
 
-        subdomains = Subdomain.objects.filter(target_domain__project__slug=project)
+        subdomains = Subdomain.objects.filter(target_domain__project__name=project)
 
         if target_id:
             self.queryset = subdomains.filter(target_domain__id=target_id).distinct()
@@ -3883,7 +3883,7 @@ class EndPointViewSet(viewsets.ModelViewSet):
         subdomain_id = req.query_params.get("subdomain_id")
         project = req.query_params.get("project")
 
-        endpoints_obj = EndPoint.objects.filter(target_domain__project__slug=project)
+        endpoints_obj = EndPoint.objects.filter(target_domain__project__name=project)
 
         gf_tag = (
             req.query_params.get("gf_tag") if "gf_tag" in req.query_params else None
@@ -4125,7 +4125,7 @@ class VulnerabilityViewSet(viewsets.ModelViewSet):
 
         if slug:
             vulnerabilities = Vulnerability.objects.filter(
-                scan_history__domain__project__slug=slug
+                scan_history__domain__project__name=slug
             )
         else:
             vulnerabilities = Vulnerability.objects.all()

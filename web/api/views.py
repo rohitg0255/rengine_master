@@ -878,9 +878,7 @@ class SettingsAPi(APIView):
         print(1)
         try:
             project = request.query_params.get("project")
-            proj_obj = Project.objects.select_related(
-                "OpenAiAPIKey", "NetlasAPIKey", "Proxy"
-            ).get(name=project)
+            proj_obj = Project.objects.get(name=project)
             OpenAiAPIKey = model_to_dict(proj_obj.OpenAiAPIKey)
             NetlasAPIKey = model_to_dict(proj_obj.NetlasAPIKey)
             Proxy = model_to_dict(proj_obj.Proxy)
@@ -973,7 +971,7 @@ class NotificationAPi(APIView):
     def get(self, request):
         try:
             project = request.query_params.get("project")
-            proj_obj = Project.objects.select_related("notification").get(name=project)
+            proj_obj = Project.objects.get(name=project)
             print(
                 proj_obj.notification.send_to_slack,
                 proj_obj.notification.send_to_telegram,

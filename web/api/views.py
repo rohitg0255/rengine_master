@@ -879,6 +879,7 @@ class SettingsAPi(APIView):
         try:
             project = request.query_params.get("project")
             proj_obj = Project.objects.get(name=project)
+            print(proj_obj, proj_obj.OpenAiAPIKey, proj_obj.NetlasAPIKey, "dssds")
             OpenAiAPIKey = model_to_dict(proj_obj.OpenAiAPIKey)
             NetlasAPIKey = model_to_dict(proj_obj.NetlasAPIKey)
             Proxy = model_to_dict(proj_obj.Proxy)

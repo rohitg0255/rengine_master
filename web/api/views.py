@@ -1078,13 +1078,15 @@ class ExtendLimit(APIView):
         try:
             if sub_id != None:
                 subscription = Subscription.objects.filter(name=sub_id)
+                print(subscription, "dweew")
             if len(subscription) == 0:
                 project = Project.objects.get(name=project)
                 newLimit = project.limit + extend
                 project.limit = newLimit
                 project.save()
-            if sub_id != None:
+            if sub_id != None and len(subscription) == 0:
                 subs_obj = Subscription.objects.create(name=sub_id)
+                print(subs_obj, "gewgj")
             return Response(
                 {"status": True, "project": project.id, "limit": project.limit}
             )

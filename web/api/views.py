@@ -1072,12 +1072,19 @@ class ExtendLimit(APIView):
 
         project = data["project"]
         extend = data["extend"]
+        sub_id = data.get("sub_id")
         print(project, extend, "dsds")
+        subscription = []
         try:
-            project = Project.objects.get(name=project)
-            newLimit = project.limit + extend
-            project.limit = newLimit
-            project.save()
+            if sub_id != None:
+                subscription = Subscription.objects.filter(name=sub_id)
+            if len(subscription) == 0:
+                project = Project.objects.get(name=project)
+                newLimit = project.limit + extend
+                project.limit = newLimit
+                project.save()
+            if sub_id != None:
+                subs_obj = Subscription.objects.create(name=sub_id)
             return Response(
                 {"status": True, "project": project.id, "limit": project.limit}
             )

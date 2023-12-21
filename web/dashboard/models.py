@@ -25,6 +25,11 @@ class NetlasAPIKey(models.Model):
         return self.key
 
 
+class Subscription(models.Model):
+    id = models.AutoField(primary_key=True)
+    name = models.CharField(max_length=500)
+
+
 class Project(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=500)

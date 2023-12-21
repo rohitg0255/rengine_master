@@ -1078,7 +1078,9 @@ class ExtendLimit(APIView):
             project.limit = newLimit
             project.save()
             print(project, extend)
-            return Response({"status": True, "project": project.id})
+            return Response(
+                {"status": True, "project": project.id, "limit": project.limit}
+            )
         except Exception as e:
             return Response({"status": False, "error": error})
 

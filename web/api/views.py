@@ -1072,12 +1072,12 @@ class ExtendLimit(APIView):
 
         project = data["project"]
         extend = data["extend"]
+        print(project, extend, "dsds")
         try:
             project = Project.objects.get(name=project)
             newLimit = project.limit + extend
             project.limit = newLimit
             project.save()
-            print(project, extend)
             return Response(
                 {"status": True, "project": project.id, "limit": project.limit}
             )

@@ -1143,6 +1143,7 @@ class Dashboard(APIView):
                 )
                 org_subdomain_id = list(org_subdomain.values_list("id", flat=True))
                 org_scan = ScanHistory.objects.filter(domain__pk__in=org_domain)
+                times_scanned = len(org_scan)
                 org_scan_history = org_scan.annotate(
                     month=TruncMonth("start_scan_date")
                 )
@@ -1349,6 +1350,7 @@ class Dashboard(APIView):
 
                 context = {
                     "status": True,
+                    "times_scanned": times_scanned,
                     "domain_count": domain_count,
                     "endpoint_count": endpoint_count,
                     "scan_count": scan_count,

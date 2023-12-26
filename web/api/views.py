@@ -195,9 +195,12 @@ class Delta(APIView):
                 .order_by("-scan_history__start_scan_date")
             )
             context["subdomain_delta"] = subdomain_delta
-            context["change_in_subdomain"] = (
-                subdomain_delta[0]["total"] - subdomain_delta[1]["total"]
-            )
+            if len(subdomain_delta) > 1:
+                context["change_in_subdomain"] = (
+                    subdomain_delta[0]["total"] - subdomain_delta[1]["total"]
+                )
+            else:
+                context["change_in_subdomain"] = "-"
             # change in endpoints
             endpoint_delta = (
                 EndPoint.objects.filter(target_domain__id=1)
@@ -206,9 +209,12 @@ class Delta(APIView):
                 .order_by("-scan_history__start_scan_date")
             )
             context["endpoint_delta"] = endpoint_delta
-            context["change_in_endpoint"] = (
-                endpoint_delta[0]["total"] - endpoint_delta[1]["total"]
-            )
+            if len(endpoint_delta) > 1:
+                context["change_in_endpoint"] = (
+                    endpoint_delta[0]["total"] - endpoint_delta[1]["total"]
+                )
+            else:
+                context["change_in_endpoint"] = "-"
             return Response(context)
         except Exception as e:
             print(e, "asa", context, "as")

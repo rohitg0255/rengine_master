@@ -1543,8 +1543,8 @@ class ScheduleStartScan(APIView):
             org_id = data["org_id"]
             project = Project.objects.get(name=org_id)
             endpoint = EndPoint.objects.filter(target_domain__project__name=org_id)
-            # endpoint_count = endpoint.count()
-            endpoint_count = 21232322
+            endpoint_count = endpoint.count()
+            # endpoint_count = 21232322
             if endpoint_count > project.limit:
                 return Response(
                     {"status": True, "desc": "Subscription invalid.Please Recharge."}

@@ -138,13 +138,12 @@ class Delta(APIView):
     def get(self, request):
         try:
             id = request.query_params.get("id")
-            print(id)
             context = {}
 
             # Domain
             target = get_object_or_404(Domain, id=id)
-            # target = Domain.objects.filter(id=id).values()
-            targetDetail = model_to_dict(target)
+            print(id, "print",target)
+            # targetDetail = model_to_dict(target)
 
             # Subdomains
             subdomains = (

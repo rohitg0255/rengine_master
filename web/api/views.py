@@ -142,7 +142,7 @@ class Delta(APIView):
 
             # Domain
             target = get_object_or_404(Domain, id=id)
-            print(id, "print",target)
+            print(id, "prinerrt", target)
             # targetDetail = model_to_dict(target)
 
             # Subdomains

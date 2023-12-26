@@ -1535,6 +1535,15 @@ class ScheduleStartScan(APIView):
         try:
             req = self.request
             data = req.data
+            org_id = data["org_id"]
+            project = Project.objects.get(name=org_id)
+            endpoint = EndPoint.objects.filter(target_domain__project__name=org_id)
+            # endpoint_count = endpoint.count()
+            endpoint_count = 21232322
+            if endpoint_count > project.limit:
+                return Response(
+                    {"status": True, "desc": "Subscription invalid.Please Recharge."}
+                )
             list_of_domains = data.get("listOfDomainId")
             engine_type = data["scanMode"]  # imp
             import_subdomain = data.get("importSubdomainTextArea")

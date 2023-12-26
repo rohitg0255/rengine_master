@@ -212,7 +212,7 @@ class Delta(APIView):
             )
             return Response(context)
         except Exception as e:
-            print(e, "as")
+            print(e, "asa", context, "as")
             return Response({"error": str(e)})
 
 

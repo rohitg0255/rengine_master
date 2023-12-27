@@ -157,6 +157,20 @@ class Delta(APIView):
             medium_count = vulnerabilities.filter(severity=2).count()
             high_count = vulnerabilities.filter(severity=3).count()
             critical_count = vulnerabilities.filter(severity=4).count()
+            none_count = sum(
+                [
+                    unknown_count,
+                    info_count,
+                    low_count,
+                    medium_count,
+                    high_count,
+                    critical_count,
+                ]
+            )
+            if none_count == 0:
+                none_count = 1
+            else:
+                none_count = 0
             ignore_info_count = sum(
                 [low_count, medium_count, high_count, critical_count]
             )
@@ -175,6 +189,7 @@ class Delta(APIView):
                 {"x": "medium_count", "y": medium_count},
                 {"x": "high_count", "y": high_count},
                 {"x": "critical_count", "y": critical_count},
+                {"x": "None", "y": none_count},
             ]
 
             # Technology Stack
@@ -349,7 +364,8 @@ class Summary(APIView):
                 context["historical_ips"] = historical_ips
                 context["dns_records"] = dns_records
                 print(nameservers, "ds", historical_ips, "dssd", dns_records, "dsoo")
-
+            else:
+                context["fetch_whois"] = True
             # try:
             #     context["domain_info"] = target.domain_info
             # except Exception as e:

@@ -321,6 +321,7 @@ class Summary(APIView):
             target = get_object_or_404(Domain, id=id)
             # target = Domain.objects.filter(id=id).values()
             targetDetail = model_to_dict(target)
+            context["target"] = targetDetail
             if target.domain_info != None:
                 did = target.domain_info.id
                 print(did, "daa")
@@ -328,7 +329,6 @@ class Summary(APIView):
                 targetDetail["updated"] = naturalT(target.domain_info.updated)
                 targetDetail["expires"] = naturalT(target.domain_info.expires)
                 targetDetail["last_scan"] = naturalT(target.start_scan_date)
-                context["target"] = targetDetail
                 domain_info = DomainInfo.objects.filter(id=did).values()
 
                 rid = domain_info[0]["registrar_id"]

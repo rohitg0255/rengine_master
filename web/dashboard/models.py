@@ -33,6 +33,7 @@ class Subscription(models.Model):
 class Project(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=500)
+    customer = models.CharField(max_length=500)
     slug = models.SlugField(unique=True)
     insert_date = models.DateTimeField()
     limit = models.IntegerField(default=0)

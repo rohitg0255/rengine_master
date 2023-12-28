@@ -1094,6 +1094,7 @@ class ExtendLimit(APIView):
         project = data["project"]
         extend = data["extend"]
         sub_id = data.get("sub_id")
+        
         print(project, extend, "dsds")
         subscription = []
         try:
@@ -1557,9 +1558,31 @@ class ScheduleStartScan(APIView):
             req = self.request
             data = req.data
             org_id = data["org_id"]
+            supabase_limit = data["supabase_limit"]
             project = Project.objects.get(name=org_id)
             endpoint = EndPoint.objects.filter(target_domain__project__name=org_id)
             endpoint_count = endpoint.count()
+            scan_count = org_scan_history.count()
+            subdomain = Subdomain.objects.filter(target_domain__pk__in=org_domain)
+            subdomain_count = subdomain.count()
+            subdomain_with_ip_count = Subdomain.objects.filter(
+                target_domain__pk__in=org_domain, ip_addresses__isnull=False
+            ).count()
+            alive_count = (
+                Subdomain.objects.filter(target_domain__pk__in=org_domain)
+                .exclude(http_status__exact=0)
+                .count()
+            )
+            endpoint_alive_count = EndPoint.objects.filter(
+                target_domain__pk__in=org_domain, http_status__exact=200
+            ).count()
+            count = endpoint_count+
+                    scan_count+
+                    subdomain_count+
+                    subdomain_with_ip_count+
+                    alive_count+
+                    endpoint_alive_count+
+                    supabase_limit
             # endpoint_count = 21232322
             if endpoint_count > project.limit:
                 return Response(

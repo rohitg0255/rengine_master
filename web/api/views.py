@@ -1094,7 +1094,7 @@ class ExtendLimit(APIView):
         project = data["project"]
         extend = data["extend"]
         sub_id = data.get("sub_id")
-        
+
         print(project, extend, "dsds")
         subscription = []
         try:
@@ -1576,15 +1576,17 @@ class ScheduleStartScan(APIView):
             endpoint_alive_count = EndPoint.objects.filter(
                 target_domain__pk__in=org_domain, http_status__exact=200
             ).count()
-            count = endpoint_count+
-                    scan_count+
-                    subdomain_count+
-                    subdomain_with_ip_count+
-                    alive_count+
-                    endpoint_alive_count+
-                    supabase_limit
+            count = (
+                endpoint_count
+                + scan_count
+                + subdomain_count
+                + subdomain_with_ip_count
+                + alive_count
+                + endpoint_alive_count
+                + supabase_limit
+            )
             # endpoint_count = 21232322
-            if endpoint_count > project.limit:
+            if count > project.limit:
                 return Response(
                     {"status": True, "desc": "Subscription invalid.Please Recharge."}
                 )
